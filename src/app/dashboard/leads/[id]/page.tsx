@@ -83,14 +83,25 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
 
     const form = useForm<EditLeadFormValues>({
         resolver: zodResolver(editLeadSchema),
+        defaultValues: {
+            first_name: "",
+            last_name: "",
+            company: "",
+            title: "",
+            email: "",
+            phone: "",
+            status: "New",
+            category_id: "",
+            source: "",
+        },
         values: lead ? {
-            first_name: lead.first_name,
-            last_name: lead.last_name,
+            first_name: lead.first_name || "",
+            last_name: lead.last_name || "",
             company: lead.company || "",
             title: lead.title || "",
             email: lead.email || "",
             phone: lead.phone || "",
-            status: lead.status as "New" | "Contacted" | "Qualified" | "Lost" | "Won",
+            status: (lead.status as any) || "New",
             category_id: lead.category_id || "",
             source: lead.source || "",
         } : undefined,

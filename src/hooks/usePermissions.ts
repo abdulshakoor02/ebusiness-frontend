@@ -12,9 +12,8 @@ export function usePolicies() {
     return useQuery({
         queryKey: ["policies"],
         queryFn: async () => {
-            const res = await apiClient.get<string[][]>("/permissions");
-            // Expecting array of ["p", "sub", "obj", "act"] or similar
-            return res.data;
+            const res = await apiClient.get<{ data: string[][] }>("/permissions");
+            return res.data.data;
         },
     });
 }
@@ -23,9 +22,8 @@ export function useRoleInheritances() {
     return useQuery({
         queryKey: ["role-inheritances"],
         queryFn: async () => {
-            const res = await apiClient.get<string[][]>("/permissions/roles/inherit");
-            // Expecting array of ["g", "role1", "role2"]
-            return res.data;
+            const res = await apiClient.get<{ data: string[][] }>("/permissions/roles/inherit");
+            return res.data.data;
         },
     });
 }
