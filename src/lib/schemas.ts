@@ -97,7 +97,10 @@ export type LeadAppointment = z.infer<typeof LeadAppointmentSchema>;
 export const LeadSchema = z.object({
     id: z.string(),
     assigned_to: z.string().optional(),
-    category_id: z.string().optional(),
+    category_id: z.union([
+        z.string(),
+        z.object({ id: z.string(), name: z.string().optional() })
+    ]).optional(),
     first_name: z.string().min(1, "First name is required"),
     last_name: z.string().min(1, "Last name is required"),
     company: z.string().optional(),

@@ -611,25 +611,57 @@ All protected endpoints require an Authorization header with a Bearer token:
 
 ---
 
-## 9. System
+## 9. Lead Sources
+
+### Create Lead Source
+**Endpoint:** `POST /lead-sources`
+**Auth Required:** Yes (RBAC Enforced)
+
+**Request:**
+```json
+{
+  "name": "Website",
+  "description": "Leads originating from the company website"
+}
+```
+
+**Response (201 Created):**
+(Returns the created LeadSource object)
+
+### Get Lead Source by ID
+**Endpoint:** `GET /lead-sources/:id`
+**Auth Required:** Yes (RBAC Enforced)
+
+**Response (200 OK):**
+(Returns the LeadSource object)
+
+### Update Lead Source
+**Endpoint:** `PUT /lead-sources/:id`
+**Auth Required:** Yes (RBAC Enforced)
+
+**Request:**
+```json
+{
+  "description": "Leads originating from organic website traffic"
+}
+```
+
+**Response (200 OK):**
+(Returns the updated LeadSource object)
+
+### Delete Lead Source
+**Endpoint:** `DELETE /lead-sources/:id`
 **Auth Required:** Yes (RBAC Enforced)
 
 **Response (200 OK):**
 ```json
 {
-  "message": "Lead category deleted successfully"
+  "message": "Lead source deleted successfully"
 }
 ```
 
-**Response (400 Bad Request):** (If category is in use by leads)
-```json
-{
-  "error": "Cannot delete category currently in use by leads"
-}
-```
-
-### List Lead Categories
-**Endpoint:** `POST /lead-categories/list`
+### List Lead Sources
+**Endpoint:** `POST /lead-sources/list`
 **Auth Required:** Yes (RBAC Enforced)
 
 **Request:**
@@ -642,11 +674,11 @@ All protected endpoints require an Authorization header with a Bearer token:
 ```
 
 **Response (200 OK):**
-(Returns paginated lead categories)
+(Returns paginated lead sources)
 
 ---
 
-## 7. System
+## 10. System
 
 ### System Health Check
 **Endpoint:** `GET /health`

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -65,7 +65,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
 
     // Queries
     const { data: lead, isLoading: isLoadingLead } = useLead(leadId);
-    const { data: categoriesData } = useLeadCategories({ limit: 100 });
+    const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
     const { data: commentsData, isLoading: isLoadingComments } = useLeadComments(leadId);
     const { data: appointmentsData, isLoading: isLoadingAppointments } = useLeadAppointments(leadId);
 
@@ -102,10 +102,30 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             email: lead.email || "",
             phone: lead.phone || "",
             status: (lead.status as any) || "New",
-            category_id: lead.category_id || "",
+            category_id: typeof lead.category_id === 'object' && lead.category_id !== null
+                ? lead.category_id.id
+                : (lead.category_id || ""),
             source: lead.source || "",
         } : undefined,
     });
+
+    useEffect(() => {
+        if (lead) {
+            form.reset({
+                first_name: lead.first_name || "",
+                last_name: lead.last_name || "",
+                company: lead.company || "",
+                title: lead.title || "",
+                email: lead.email || "",
+                phone: lead.phone || "",
+                status: (lead.status as any) || "New",
+                category_id: typeof lead.category_id === 'object' && lead.category_id !== null
+                    ? lead.category_id.id
+                    : (lead.category_id || ""),
+                source: lead.source || "",
+            });
+        }
+    }, [lead, form]);
 
     function onSubmit(data: EditLeadFormValues) {
         updateLead.mutate({ id: leadId, data });
@@ -121,7 +141,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
         );
     }
 
-    if (isLoadingLead) {
+    if (isLoadingLead || isLoadingCategories) {
         return (
             <div className="flex justify-center items-center h-[60vh]">
                 <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
@@ -235,7 +255,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Lead Status</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select key={field.value} onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select status" />
@@ -259,7 +279,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Category</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                                            <Select key={field.value} onValueChange={field.onChange} value={field.value || undefined}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select a category" />
