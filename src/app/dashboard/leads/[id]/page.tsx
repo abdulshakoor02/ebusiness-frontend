@@ -4,6 +4,7 @@ import { use, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
     useLead,
     useUpdateLead,
@@ -63,6 +64,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const resolvedParams = use(params);
     const leadId = resolvedParams.id;
     const router = useRouter();
+    const { data: session } = useSession();
 
     // Queries
     const { data: lead, isLoading: isLoadingLead } = useLead(leadId);
@@ -134,7 +136,14 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     }, [lead, form]);
 
     function onSubmit(data: EditLeadFormValues) {
-        updateLead.mutate({ id: leadId, data });
+        const assignedTo = typeof lead?.assigned_to === 'object' && lead?.assigned_to !== null
+            ? (lead.assigned_to as any).id
+            : (lead?.assigned_to || session?.user?.id);
+        const payload = {
+            ...data,
+            assigned_to: assignedTo,
+        };
+        updateLead.mutate({ id: leadId, data: payload });
     }
 
     function handleAddComment() {

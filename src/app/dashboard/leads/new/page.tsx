@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useCreateLead, useCreateLeadComment, useLeadCategories, useLeadSources } from "@/hooks/useLeads";
 import { LeadSchema, Lead } from "@/lib/schemas";
 import { z } from "zod";
@@ -47,6 +48,7 @@ type NewLeadFormValues = z.infer<typeof newLeadSchema>;
 
 export default function NewLeadPage() {
     const router = useRouter();
+    const { data: session } = useSession();
     const createLead = useCreateLead();
     const createComment = useCreateLeadComment();
     const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
@@ -72,9 +74,10 @@ export default function NewLeadPage() {
 
     function onSubmit(data: NewLeadFormValues) {
         const { initial_comment, ...leadData } = data;
+        const payload = { ...leadData, assigned_to: session?.user?.id };
 
         // First save the lead
-        createLead.mutate(leadData, {
+        createLead.mutate(payload, {
             onSuccess: (newLead) => {
                 // If there's an initial comment, create it using the new lead's ID
                 if (initial_comment && initial_comment.trim().length > 0) {

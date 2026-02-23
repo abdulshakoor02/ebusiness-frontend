@@ -345,14 +345,15 @@ All protected endpoints require an Authorization header with a Bearer token:
 ```json
 {
   "assigned_to": "60b8f...",
+  "category_id": "60b8f...",
+  "source_id": "60b8f...",
   "first_name": "Alice",
   "last_name": "Johnson",
   "company": "Tech Innovations",
   "title": "CTO",
   "email": "alice@techinnovations.com",
   "phone": "+1987654321",
-  "status": "New",
-  "source": "Website"
+  "status": "New"
 }
 ```
 
@@ -373,7 +374,9 @@ All protected endpoints require an Authorization header with a Bearer token:
 **Request (Partial update supported):**
 ```json
 {
-  "status": "Contacted"
+  "status": "Contacted",
+  "source_id": "60b8f...",
+  "category_id": "60b8f..."
 }
 ```
 
