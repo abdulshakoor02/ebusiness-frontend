@@ -10,7 +10,8 @@ import {
     useLeadCategories,
     useLeadComments,
     useCreateLeadComment,
-    useLeadAppointments
+    useLeadAppointments,
+    useLeadSources
 } from "@/hooks/useLeads";
 import { LeadSchema, Lead } from "@/lib/schemas";
 import { z } from "zod";
@@ -54,7 +55,7 @@ const editLeadSchema = z.object({
     phone: z.string().optional(),
     status: z.enum(["New", "Contacted", "Qualified", "Lost", "Won"]),
     category_id: z.string().optional(),
-    source: z.string().optional(),
+    source_id: z.string().optional(),
 });
 type EditLeadFormValues = z.infer<typeof editLeadSchema>;
 
@@ -66,14 +67,15 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     // Queries
     const { data: lead, isLoading: isLoadingLead } = useLead(leadId);
     const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
+    const { data: sourcesData, isLoading: isLoadingSources } = useLeadSources({ limit: 100 });
     const { data: commentsData, isLoading: isLoadingComments } = useLeadComments(leadId);
     const { data: appointmentsData, isLoading: isLoadingAppointments } = useLeadAppointments(leadId);
-
     // Mutations
     const updateLead = useUpdateLead();
     const createComment = useCreateLeadComment();
 
     const categories = categoriesData?.data || [];
+    const sources = sourcesData?.data || [];
     const comments = commentsData?.data || [];
     const appointments = appointmentsData?.data || [];
 
@@ -92,7 +94,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             phone: "",
             status: "New",
             category_id: "",
-            source: "",
+            source_id: "",
         },
         values: lead ? {
             first_name: lead.first_name || "",
@@ -105,7 +107,9 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             category_id: typeof lead.category_id === 'object' && lead.category_id !== null
                 ? lead.category_id.id
                 : (lead.category_id || ""),
-            source: lead.source || "",
+            source_id: typeof lead.source_id === 'object' && lead.source_id !== null
+                ? lead.source_id.id
+                : (lead.source_id || ""),
         } : undefined,
     });
 
@@ -122,7 +126,9 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 category_id: typeof lead.category_id === 'object' && lead.category_id !== null
                     ? lead.category_id.id
                     : (lead.category_id || ""),
-                source: lead.source || "",
+                source_id: typeof lead.source_id === 'object' && lead.source_id !== null
+                    ? lead.source_id.id
+                    : (lead.source_id || ""),
             });
         }
     }, [lead, form]);
@@ -141,7 +147,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
         );
     }
 
-    if (isLoadingLead || isLoadingCategories) {
+    if (isLoadingLead || isLoadingCategories || isLoadingSources) {
         return (
             <div className="flex justify-center items-center h-[60vh]">
                 <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
@@ -297,11 +303,23 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="source"
+                                    name="source_id"
                                     render={({ field }) => (
                                         <FormItem className="md:col-span-2">
                                             <FormLabel>Source</FormLabel>
-                                            <FormControl><Input {...field} /></FormControl>
+                                            <Select key={field.value} onValueChange={field.onChange} value={field.value || undefined}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a source" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none">No Source</SelectItem>
+                                                    {sources.map(s => (
+                                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}

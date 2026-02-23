@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { Lead, LeadCategory, LeadComment, LeadAppointment } from "@/lib/schemas";
+import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadSource } from "@/lib/schemas";
 import { toast } from "sonner";
 
 // --- Categories ---
@@ -71,6 +71,79 @@ export function useDeleteLeadCategory() {
         onError: (error: any) => {
             toast.error("Failed to delete category", {
                 description: error?.response?.data?.error || "This category might be in use.",
+            });
+        }
+    });
+}
+
+// --- Sources ---
+
+export function useLeadSources(params?: { limit?: number; offset?: number }) {
+    return useQuery({
+        queryKey: ["lead-sources", params],
+        queryFn: async () => {
+            const res = await apiClient.post<{ data: LeadSource[]; total: number }>("/lead-sources/list", {
+                filters: {},
+                limit: params?.limit || 50,
+                offset: params?.offset || 0,
+            });
+            return res.data;
+        },
+    });
+}
+
+export function useCreateLeadSource() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<LeadSource>) => {
+            const res = await apiClient.post("/lead-sources", data);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["lead-sources"] });
+            toast.success("Source created successfully");
+        },
+        onError: (error: any) => {
+            toast.error("Failed to create source", {
+                description: error?.response?.data?.error || "An unexpected error occurred",
+            });
+        }
+    });
+}
+
+export function useUpdateLeadSource() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: Partial<LeadSource> }) => {
+            const res = await apiClient.put(`/lead-sources/${id}`, data);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["lead-sources"] });
+            toast.success("Source updated successfully");
+        },
+        onError: (error: any) => {
+            toast.error("Failed to update source", {
+                description: error?.response?.data?.error || "An unexpected error occurred",
+            });
+        }
+    });
+}
+
+export function useDeleteLeadSource() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const res = await apiClient.delete(`/lead-sources/${id}`);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["lead-sources"] });
+            toast.success("Source deleted");
+        },
+        onError: (error: any) => {
+            toast.error("Failed to delete source", {
+                description: error?.response?.data?.error || "This source might be in use.",
             });
         }
     });

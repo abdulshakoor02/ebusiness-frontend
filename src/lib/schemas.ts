@@ -94,6 +94,15 @@ export const LeadAppointmentSchema = z.object({
 });
 export type LeadAppointment = z.infer<typeof LeadAppointmentSchema>;
 
+export const LeadSourceSchema = z.object({
+    id: z.string(),
+    name: z.string().min(1, "Source name is required"),
+    description: z.string().optional(),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+export type LeadSource = z.infer<typeof LeadSourceSchema>;
+
 export const LeadSchema = z.object({
     id: z.string(),
     assigned_to: z.string().optional(),
@@ -108,7 +117,10 @@ export const LeadSchema = z.object({
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
     status: z.string(),
-    source: z.string().optional(),
+    source_id: z.union([
+        z.string(),
+        z.object({ id: z.string(), name: z.string().optional() })
+    ]).optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });

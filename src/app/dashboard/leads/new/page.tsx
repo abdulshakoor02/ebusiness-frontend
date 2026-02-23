@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useCreateLead, useCreateLeadComment, useLeadCategories } from "@/hooks/useLeads";
+import { useCreateLead, useCreateLeadComment, useLeadCategories, useLeadSources } from "@/hooks/useLeads";
 import { LeadSchema, Lead } from "@/lib/schemas";
 import { z } from "zod";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -40,7 +40,7 @@ const newLeadSchema = z.object({
     phone: z.string().optional(),
     status: z.enum(["New", "Contacted", "Qualified", "Lost", "Won"]),
     category_id: z.string().optional(),
-    source: z.string().optional(),
+    source_id: z.string().optional(),
     initial_comment: z.string().optional(),
 });
 type NewLeadFormValues = z.infer<typeof newLeadSchema>;
@@ -50,7 +50,9 @@ export default function NewLeadPage() {
     const createLead = useCreateLead();
     const createComment = useCreateLeadComment();
     const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
+    const { data: sourcesData, isLoading: isLoadingSources } = useLeadSources({ limit: 100 });
     const categories = categoriesData?.data || [];
+    const sources = sourcesData?.data || [];
 
     const form = useForm<NewLeadFormValues>({
         resolver: zodResolver(newLeadSchema),
@@ -63,7 +65,7 @@ export default function NewLeadPage() {
             phone: "",
             status: "New",
             category_id: "",
-            source: "",
+            source_id: "",
             initial_comment: "",
         },
     });
@@ -252,13 +254,23 @@ export default function NewLeadPage() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="source"
+                                    name="source_id"
                                     render={({ field }) => (
                                         <FormItem className="md:col-span-2">
                                             <FormLabel>Source</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="e.g. Website, Referral, Conference" {...field} />
-                                            </FormControl>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingSources}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a source" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none">No Source</SelectItem>
+                                                    {sources.map(s => (
+                                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
