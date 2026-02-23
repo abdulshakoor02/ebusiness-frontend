@@ -35,7 +35,7 @@ export function AppSidebar() {
                     <div className="h-8 w-8 bg-black dark:bg-white rounded-md flex items-center justify-center">
                         <Gem className="text-white dark:text-black h-5 w-5" />
                     </div>
-                    <span className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">Nexus</span>
+                    <span className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">ebusiness+</span>
                 </Link>
             </SidebarHeader>
             <SidebarContent>
