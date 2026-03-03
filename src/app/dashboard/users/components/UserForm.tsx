@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useCreateUser, CreateUserInput } from "@/hooks/useUsers";
+import { useRoles } from "@/hooks/usePermissions";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 
 export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
     const createUser = useCreateUser();
+    const { data: roles, isLoading: isLoadingRoles, isError: isErrorRoles } = useRoles();
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
@@ -153,10 +155,19 @@ export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="super_admin">Super Admin</SelectItem>
-                                            <SelectItem value="admin">Admin</SelectItem>
-                                            <SelectItem value="manager">Manager</SelectItem>
-                                            <SelectItem value="viewer">Viewer</SelectItem>
+                                            {isErrorRoles ? (
+                                                <SelectItem value="error" disabled>Failed to load roles</SelectItem>
+                                            ) : isLoadingRoles ? (
+                                                <SelectItem value="loading" disabled>Loading roles...</SelectItem>
+                                            ) : roles?.length ? (
+                                                roles.map((role) => (
+                                                    <SelectItem key={role} value={role}>
+                                                        {role.replace("_", " ")}
+                                                    </SelectItem>
+                                                ))
+                                            ) : (
+                                                <SelectItem value="none" disabled>No roles available</SelectItem>
+                                            )}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
