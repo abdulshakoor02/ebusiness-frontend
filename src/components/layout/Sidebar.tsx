@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gem, LayoutDashboard, Building2, Users, Shield, BookOpen, ScrollText, Network } from "lucide-react";
+import { Gem, LayoutDashboard, Building2, Users, Shield, BookOpen, ScrollText, Network, FileKey } from "lucide-react";
 
 import {
     Sidebar,
@@ -23,7 +23,8 @@ const adminNavigation = [
     { name: "Lead Sources", href: "/dashboard/leads/sources", icon: Network },
     { name: "Tenants", href: "/dashboard/tenants", icon: Building2 },
     { name: "Users", href: "/dashboard/users", icon: Users },
-    { name: "Permissions", href: "/dashboard/permissions", icon: Shield },
+    { name: "Role Permissions", href: "/dashboard/access-management/role-permissions", icon: Shield },
+    { name: "Permission Rules", href: "/dashboard/access-management/rules", icon: FileKey },
 ];
 
 export function AppSidebar() {
