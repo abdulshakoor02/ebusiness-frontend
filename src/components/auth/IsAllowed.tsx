@@ -1,21 +1,23 @@
 "use client";
 
-import { useIsAllowed } from "@/hooks/useAuthz";
-import { ReactNode } from "react";
+import { usePermissions } from "@/context/PermissionsContext";
 
 interface IsAllowedProps {
-    resource: string;
-    action: string;
-    children: ReactNode;
-    fallback?: ReactNode;
+  permission: string;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
 }
 
-export function IsAllowed({ resource, action, children, fallback = null }: IsAllowedProps) {
-    const isAllowed = useIsAllowed(resource, action);
+export function IsAllowed({ permission, children, fallback = null }: IsAllowedProps) {
+  const { hasPermission, isLoading } = usePermissions();
 
-    if (!isAllowed) {
-        return <>{fallback}</>;
-    }
+  if (isLoading) {
+    return null;
+  }
 
-    return <>{children}</>;
+  if (!hasPermission(permission)) {
+    return <>{fallback}</>;
+  }
+
+  return <>{children}</>;
 }
