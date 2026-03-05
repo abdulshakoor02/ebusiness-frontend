@@ -65,7 +65,7 @@ export function Topbar() {
 
       <div className="flex items-center gap-4">
         <DropdownMenu>
-          <DropdownMenuTrigger className="outline-none">
+          <DropdownMenuTrigger className="outline-none" suppressHydrationWarning>
             <Avatar className="h-8 w-8 cursor-pointer border border-zinc-200 dark:border-zinc-800 transition-opacity hover:opacity-80">
               <AvatarImage src="" />
               <AvatarFallback className="bg-zinc-100 dark:bg-zinc-900 text-sm font-medium">

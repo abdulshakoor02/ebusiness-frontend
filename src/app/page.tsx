@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Gem } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
@@ -27,12 +27,9 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="z-10 flex items-center space-x-3"
+          className="z-10 flex w-full justify-center mt-8 mb-4"
         >
-          <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center">
-            <Gem className="text-black h-6 w-6" />
-          </div>
-          <span className="text-2xl font-semibold tracking-tight">Nexus ERP</span>
+          <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={360} height={99} className="rounded-2xl w-[360px] h-[99px] object-cover object-center" />
         </motion.div>
 
         <motion.div
@@ -45,7 +42,7 @@ export default function LoginPage() {
             Manage your entire enterprise in one cohesive operating system.
           </h1>
           <p className="text-zinc-400 text-lg">
-            Nexus provides an elegant, scalable, and powerful platform to manage
+            Ebusiness provides an elegant, scalable, and powerful platform to manage
             tenants, users, and resources globally.
           </p>
         </motion.div>
@@ -56,7 +53,7 @@ export default function LoginPage() {
           transition={{ duration: 1, delay: 0.4 }}
           className="z-10 text-zinc-500 text-sm"
         >
-          &copy; {new Date().getFullYear()} Nexus Corporation. All rights reserved.
+          &copy; {new Date().getFullYear()} Ebusiness. All rights reserved.
         </motion.div>
       </div>
 
@@ -69,8 +66,8 @@ export default function LoginPage() {
           className="w-full max-w-sm"
         >
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-8">
-            <div className="lg:hidden h-12 w-12 bg-white rounded-xl flex items-center justify-center mb-6">
-              <Gem className="text-black h-7 w-7" />
+            <div className="lg:hidden mb-6">
+              <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={200} height={55} className="rounded-xl w-[200px] h-[55px] object-cover object-center" />
             </div>
             <h2 className="text-3xl font-semibold tracking-tight mb-2">Welcome back</h2>
             <p className="text-zinc-400">Please enter your details to sign in.</p>

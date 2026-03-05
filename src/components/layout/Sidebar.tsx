@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Gem, LayoutDashboard, Building2, Users, Shield, BookOpen, ScrollText, Network, FileKey } from "lucide-react";
+import { LayoutDashboard, Building2, Users, Shield, BookOpen, ScrollText, Network, FileKey } from "lucide-react";
 
 import {
     Sidebar,
@@ -44,12 +45,9 @@ export function AppSidebar() {
 
     return (
         <Sidebar className="border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-            <SidebarHeader className="h-16 flex items-center px-4 border-b border-zinc-200 dark:border-zinc-800">
-                <Link href="/dashboard" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-                    <div className="h-8 w-8 bg-black dark:bg-white rounded-md flex items-center justify-center">
-                        <Gem className="text-white dark:text-black h-5 w-5" />
-                    </div>
-                    <span className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">ebusiness+</span>
+            <SidebarHeader className="!h-16 flex items-center justify-start px-3 py-0 border-b border-zinc-200 dark:border-zinc-800">
+                <Link href="/dashboard" className="flex items-center w-full h-full transition-opacity hover:opacity-80">
+                    <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={165} height={50} className="rounded-md w-[165px] h-[50px] object-cover object-center" />
                 </Link>
             </SidebarHeader>
             <SidebarContent>
@@ -79,6 +77,6 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-        </Sidebar>
+        </Sidebar >
     );
 }
