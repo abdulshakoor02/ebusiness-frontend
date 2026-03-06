@@ -151,14 +151,15 @@ export function useDeleteLeadSource() {
 
 // --- Leads ---
 
-export function useLeads(params?: { status?: string; limit?: number; offset?: number }) {
+export function useLeads(params?: { search?: string; category_id?: string; limit?: number; offset?: number }) {
     return useQuery({
         queryKey: ["leads", params],
         queryFn: async () => {
             const res = await apiClient.post<{ data: Lead[]; total: number }>("/leads/list", {
-                filters: {
-                    status: params?.status
-                },
+                filters: params?.category_id ? {
+                    category_id: params.category_id
+                } : {},
+                search: params?.search || undefined,
                 limit: params?.limit || 10,
                 offset: params?.offset || 0,
             });

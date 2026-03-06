@@ -166,12 +166,9 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     }, [lead, form]);
 
     function onSubmit(data: EditLeadFormValues) {
-        const assignedTo = typeof lead?.assigned_to === 'object' && lead?.assigned_to !== null
-            ? (lead.assigned_to as any).id
-            : (lead?.assigned_to || session?.user?.id);
         const payload = {
             ...data,
-            assigned_to: assignedTo,
+            assigned_to: data.assigned_to || undefined,
         };
         updateLead.mutate({ id: leadId, data: payload });
     }

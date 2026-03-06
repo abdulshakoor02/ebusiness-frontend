@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLeads } from "@/hooks/useLeads";
-import { Lead } from "@/lib/schemas";
+import { useLeads, useLeadCategories } from "@/hooks/useLeads";
 import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,12 +24,43 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 import { AddAppointmentModal } from "./components/AddAppointmentModal";
 
 export default function LeadsPage() {
     const router = useRouter();
-    const { data, isLoading } = useLeads();
+    
+    // Filter states
+    const [searchInput, setSearchInput] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+
+    // Debounce search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchQuery(searchInput);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
+    // Fetch leads with filters
+    const { data, isLoading } = useLeads({
+        search: searchQuery,
+        category_id: selectedCategory,
+        limit: 10,
+        offset: 0,
+    });
+
+    // Fetch categories for dropdown
+    const { data: categoriesData } = useLeadCategories({ limit: 100 });
+    const categories = categoriesData?.data || [];
 
     // Appointment Modal State
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
@@ -62,14 +92,32 @@ export default function LeadsPage() {
             </div>
 
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4 flex-wrap">
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
                         <Input
-                            placeholder="Filter leads..."
+                            placeholder="Search leads..."
                             className="pl-9"
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
                         />
                     </div>
+                    <Select
+                        value={selectedCategory || "all"}
+                        onValueChange={(value) => setSelectedCategory(value === "all" ? undefined : value)}
+                    >
+                        <SelectTrigger className="w-full sm:w-[200px]">
+                            <SelectValue placeholder="All Categories" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>
+                                    {category.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 {isLoading ? (
@@ -108,41 +156,31 @@ export default function LeadsPage() {
                                             {lead.designation || "-"}
                                         </TableCell>
                                         <TableCell>
-                                            {typeof lead.country_id === 'object' && lead.country_id !== null ? (
-                                                <span className="text-sm">{lead.country_id.name || "-"}</span>
-                                            ) : lead.country_id ? (
-                                                <span className="text-sm">{lead.country_id}</span>
+                                            {lead.country?.name ? (
+                                                <span className="text-sm">{lead.country.name}</span>
                                             ) : (
                                                 <span className="text-zinc-400">-</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {typeof lead.qualification_id === 'object' && lead.qualification_id !== null ? (
-                                                <span className="text-sm">{lead.qualification_id.name || "-"}</span>
-                                            ) : lead.qualification_id ? (
-                                                <span className="text-sm">{lead.qualification_id}</span>
+                                            {lead.qualification?.name ? (
+                                                <span className="text-sm">{lead.qualification.name}</span>
                                             ) : (
                                                 <span className="text-zinc-400">-</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {typeof lead.category_id === 'object' && lead.category_id !== null ? (
+                                            {lead.category?.name ? (
                                                 <Badge variant="outline">
-                                                    {lead.category_id.name || "Category"}
-                                                </Badge>
-                                            ) : lead.category_id ? (
-                                                <Badge variant="outline">
-                                                    {lead.category_id}
+                                                    {lead.category.name}
                                                 </Badge>
                                             ) : (
                                                 <span className="text-zinc-400">-</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {typeof lead.assigned_to === 'object' && lead.assigned_to !== null ? (
-                                                <span className="text-sm">{lead.assigned_to.name || "-"}</span>
-                                            ) : lead.assigned_to ? (
-                                                <span className="text-sm">{lead.assigned_to}</span>
+                                            {lead.assigned_to_user?.name ? (
+                                                <span className="text-sm">{lead.assigned_to_user.name}</span>
                                             ) : (
                                                 <span className="text-zinc-400">-</span>
                                             )}

@@ -155,6 +155,23 @@ export const LeadSchema = z.object({
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
     status: z.string(),
+    category: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
+    source: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
+    assigned_to_user: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
+    country: CountrySchema.optional(),
+    qualification: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });
