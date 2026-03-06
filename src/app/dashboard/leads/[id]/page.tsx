@@ -12,8 +12,11 @@ import {
     useLeadComments,
     useCreateLeadComment,
     useLeadAppointments,
-    useLeadSources
+    useLeadSources,
+    useCountries,
+    useQualifications
 } from "@/hooks/useLeads";
+import { useUsers } from "@/hooks/useUsers";
 import { LeadSchema, Lead } from "@/lib/schemas";
 import { z } from "zod";
 import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle } from "lucide-react";
@@ -44,18 +47,21 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Combobox } from "@/components/ui/combobox";
 import Link from "next/link";
 import { AddAppointmentModal } from "../components/AddAppointmentModal";
 
 const editLeadSchema = z.object({
     first_name: z.string().min(1, "First name is required"),
     last_name: z.string().min(1, "Last name is required"),
-    company: z.string().optional(),
-    title: z.string().optional(),
+    designation: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
     category_id: z.string().optional(),
     source_id: z.string().optional(),
+    country_id: z.string().optional(),
+    qualification_id: z.string().optional(),
+    assigned_to: z.string().optional(),
 });
 type EditLeadFormValues = z.infer<typeof editLeadSchema>;
 
@@ -69,6 +75,9 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const { data: lead, isLoading: isLoadingLead } = useLead(leadId);
     const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
     const { data: sourcesData, isLoading: isLoadingSources } = useLeadSources({ limit: 100 });
+    const { data: countriesData, isLoading: isLoadingCountries } = useCountries({ limit: 200 });
+    const { data: qualificationsData, isLoading: isLoadingQualifications } = useQualifications({ limit: 100 });
+    const { data: usersData } = useUsers({ limit: 100 });
     const { data: commentsData, isLoading: isLoadingComments } = useLeadComments(leadId);
     const { data: appointmentsData, isLoading: isLoadingAppointments } = useLeadAppointments(leadId);
     // Mutations
@@ -77,8 +86,15 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
 
     const categories = categoriesData?.data || [];
     const sources = sourcesData?.data || [];
+    const countries = countriesData?.data || [];
+    const qualifications = qualificationsData?.data || [];
+    const users = usersData?.data || [];
     const comments = commentsData?.data || [];
     const appointments = appointmentsData?.data || [];
+
+    const countryOptions = countries.map(c => ({ value: c.id, label: c.name }));
+    const qualificationOptions = qualifications.map(q => ({ value: q.id, label: q.name }));
+    const assignedToOptions = users.map(u => ({ value: u.id, label: u.name }));
 
     // State for Modals & Local Forms
     const [newComment, setNewComment] = useState("");
@@ -89,18 +105,19 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
         defaultValues: {
             first_name: "",
             last_name: "",
-            company: "",
-            title: "",
+            designation: "",
             email: "",
             phone: "",
             category_id: "",
             source_id: "",
+            country_id: "",
+            qualification_id: "",
+            assigned_to: "",
         },
         values: lead ? {
             first_name: lead.first_name || "",
             last_name: lead.last_name || "",
-            company: lead.company || "",
-            title: lead.title || "",
+            designation: lead.designation || "",
             email: lead.email || "",
             phone: lead.phone || "",
             category_id: typeof lead.category_id === 'object' && lead.category_id !== null
@@ -109,6 +126,15 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             source_id: typeof lead.source_id === 'object' && lead.source_id !== null
                 ? lead.source_id.id
                 : (lead.source_id || ""),
+            country_id: typeof lead.country_id === 'object' && lead.country_id !== null
+                ? lead.country_id.id
+                : (lead.country_id || ""),
+            qualification_id: typeof lead.qualification_id === 'object' && lead.qualification_id !== null
+                ? lead.qualification_id.id
+                : (lead.qualification_id || ""),
+            assigned_to: typeof lead.assigned_to === 'object' && lead.assigned_to !== null
+                ? lead.assigned_to.id
+                : (lead.assigned_to || ""),
         } : undefined,
     });
 
@@ -117,8 +143,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             form.reset({
                 first_name: lead.first_name || "",
                 last_name: lead.last_name || "",
-                company: lead.company || "",
-                title: lead.title || "",
+                designation: lead.designation || "",
                 email: lead.email || "",
                 phone: lead.phone || "",
                 category_id: typeof lead.category_id === 'object' && lead.category_id !== null
@@ -127,6 +152,15 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 source_id: typeof lead.source_id === 'object' && lead.source_id !== null
                     ? lead.source_id.id
                     : (lead.source_id || ""),
+                country_id: typeof lead.country_id === 'object' && lead.country_id !== null
+                    ? lead.country_id.id
+                    : (lead.country_id || ""),
+                qualification_id: typeof lead.qualification_id === 'object' && lead.qualification_id !== null
+                    ? lead.qualification_id.id
+                    : (lead.qualification_id || ""),
+                assigned_to: typeof lead.assigned_to === 'object' && lead.assigned_to !== null
+                    ? lead.assigned_to.id
+                    : (lead.assigned_to || ""),
             });
         }
     }, [lead, form]);
@@ -152,7 +186,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
         );
     }
 
-    if (isLoadingLead || isLoadingCategories || isLoadingSources) {
+    if (isLoadingLead || isLoadingCategories || isLoadingSources || isLoadingCountries || isLoadingQualifications) {
         return (
             <div className="flex justify-center items-center h-[60vh]">
                 <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
@@ -240,10 +274,10 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="company"
+                                    name="designation"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Company</FormLabel>
+                                            <FormLabel>Designation</FormLabel>
                                             <FormControl><Input {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -251,11 +285,38 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="title"
+                                    name="country_id"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Job Title</FormLabel>
-                                            <FormControl><Input {...field} /></FormControl>
+                                            <FormLabel>Country</FormLabel>
+                                            <Combobox
+                                                options={countryOptions}
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Select a country"
+                                                searchPlaceholder="Search countries..."
+                                                emptyText="No countries found"
+                                                disabled={isLoadingCountries}
+                                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="qualification_id"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Qualification</FormLabel>
+                                            <Combobox
+                                                options={qualificationOptions}
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Select qualification"
+                                                searchPlaceholder="Search qualifications..."
+                                                emptyText="No qualifications found"
+                                                disabled={isLoadingQualifications}
+                                            />
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -286,7 +347,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                     control={form.control}
                                     name="source_id"
                                     render={({ field }) => (
-                                        <FormItem className="md:col-span-2">
+                                        <FormItem>
                                             <FormLabel>Source</FormLabel>
                                             <Select key={field.value} onValueChange={field.onChange} value={field.value || undefined}>
                                                 <FormControl>
@@ -301,6 +362,24 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="assigned_to"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Assigned To</FormLabel>
+                                            <Combobox
+                                                options={assignedToOptions}
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Assign to user"
+                                                searchPlaceholder="Search users..."
+                                                emptyText="No users found"
+                                            />
                                             <FormMessage />
                                         </FormItem>
                                     )}

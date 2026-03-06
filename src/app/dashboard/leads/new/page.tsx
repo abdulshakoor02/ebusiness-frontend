@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useCreateLead, useCreateLeadComment, useLeadCategories, useLeadSources } from "@/hooks/useLeads";
+import { useCreateLead, useCreateLeadComment, useLeadCategories, useLeadSources, useCountries, useQualifications } from "@/hooks/useLeads";
+import { useUsers } from "@/hooks/useUsers";
 import { LeadSchema, Lead } from "@/lib/schemas";
 import { z } from "zod";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -28,6 +30,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 
@@ -35,12 +38,14 @@ import { Separator } from "@/components/ui/separator";
 const newLeadSchema = z.object({
     first_name: z.string().min(1, "First name is required"),
     last_name: z.string().min(1, "Last name is required"),
-    company: z.string().optional(),
-    title: z.string().optional(),
+    designation: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
     category_id: z.string().optional(),
     source_id: z.string().optional(),
+    country_id: z.string().optional(),
+    qualification_id: z.string().optional(),
+    assigned_to: z.string().optional(),
     initial_comment: z.string().optional(),
 });
 type NewLeadFormValues = z.infer<typeof newLeadSchema>;
@@ -52,23 +57,42 @@ export default function NewLeadPage() {
     const createComment = useCreateLeadComment();
     const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
     const { data: sourcesData, isLoading: isLoadingSources } = useLeadSources({ limit: 100 });
+    const { data: countriesData, isLoading: isLoadingCountries } = useCountries({ limit: 200 });
+    const { data: qualificationsData, isLoading: isLoadingQualifications } = useQualifications({ limit: 100 });
+    const { data: usersData } = useUsers({ limit: 100 });
+    
     const categories = categoriesData?.data || [];
     const sources = sourcesData?.data || [];
+    const countries = countriesData?.data || [];
+    const qualifications = qualificationsData?.data || [];
+    const users = usersData?.data || [];
+
+    const countryOptions = countries.map(c => ({ value: c.id, label: c.name }));
+    const qualificationOptions = qualifications.map(q => ({ value: q.id, label: q.name }));
+    const assignedToOptions = users.map(u => ({ value: u.id, label: u.name }));
 
     const form = useForm<NewLeadFormValues>({
         resolver: zodResolver(newLeadSchema),
         defaultValues: {
             first_name: "",
             last_name: "",
-            company: "",
-            title: "",
+            designation: "",
             email: "",
             phone: "",
             category_id: "",
             source_id: "",
+            country_id: "",
+            qualification_id: "",
+            assigned_to: "",
             initial_comment: "",
         },
     });
+
+    useEffect(() => {
+        if (session?.user?.id) {
+            form.setValue("assigned_to", session.user.id);
+        }
+    }, [session, form]);
 
     function onSubmit(data: NewLeadFormValues) {
         const { initial_comment, ...leadData } = data;
@@ -183,12 +207,12 @@ export default function NewLeadPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="company"
+                                    name="designation"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Company</FormLabel>
+                                            <FormLabel>Designation</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Acme Corp" {...field} />
+                                                <Input placeholder="VP of Sales" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -196,13 +220,38 @@ export default function NewLeadPage() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="title"
+                                    name="country_id"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Job Title</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="VP of Sales" {...field} />
-                                            </FormControl>
+                                            <FormLabel>Country</FormLabel>
+                                            <Combobox
+                                                options={countryOptions}
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Select a country"
+                                                searchPlaceholder="Search countries..."
+                                                emptyText="No countries found"
+                                                disabled={isLoadingCountries}
+                                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="qualification_id"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Qualification</FormLabel>
+                                            <Combobox
+                                                options={qualificationOptions}
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Select qualification"
+                                                searchPlaceholder="Search qualifications..."
+                                                emptyText="No qualifications found"
+                                                disabled={isLoadingQualifications}
+                                            />
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -233,7 +282,7 @@ export default function NewLeadPage() {
                                     control={form.control}
                                     name="source_id"
                                     render={({ field }) => (
-                                        <FormItem className="md:col-span-2">
+                                        <FormItem>
                                             <FormLabel>Source</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingSources}>
                                                 <FormControl>
@@ -248,6 +297,24 @@ export default function NewLeadPage() {
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="assigned_to"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Assigned To</FormLabel>
+                                            <Combobox
+                                                options={assignedToOptions}
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Assign to user"
+                                                searchPlaceholder="Search users..."
+                                                emptyText="No users found"
+                                            />
                                             <FormMessage />
                                         </FormItem>
                                     )}

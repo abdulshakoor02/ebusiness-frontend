@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadSource } from "@/lib/schemas";
+import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadSource, Country, Qualification } from "@/lib/schemas";
 import { toast } from "sonner";
 
 // --- Categories ---
@@ -286,5 +286,43 @@ export function useCreateLeadAppointment() {
                 description: error?.response?.data?.error || "An unexpected error occurred",
             });
         }
+    });
+}
+
+// --- Countries ---
+
+export function useCountries(params?: { limit?: number; offset?: number; search?: string }) {
+    return useQuery({
+        queryKey: ["countries", params],
+        queryFn: async () => {
+            const res = await apiClient.post<{ data: Country[]; total: number }>("/countries/list", {
+                filters: {
+                    is_active: true,
+                    ...(params?.search ? { name: { $regex: params.search, $options: "i" } } : {})
+                },
+                limit: params?.limit || 100,
+                offset: params?.offset || 0,
+            });
+            return res.data;
+        },
+    });
+}
+
+// --- Qualifications ---
+
+export function useQualifications(params?: { limit?: number; offset?: number; search?: string }) {
+    return useQuery({
+        queryKey: ["qualifications", params],
+        queryFn: async () => {
+            const res = await apiClient.post<{ data: Qualification[]; total: number }>("/qualifications/list", {
+                filters: {
+                    is_active: true,
+                    ...(params?.search ? { name: { $regex: params.search, $options: "i" } } : {})
+                },
+                limit: params?.limit || 100,
+                offset: params?.offset || 0,
+            });
+            return res.data;
+        },
     });
 }

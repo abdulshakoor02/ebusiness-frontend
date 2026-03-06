@@ -103,24 +103,58 @@ export const LeadSourceSchema = z.object({
 });
 export type LeadSource = z.infer<typeof LeadSourceSchema>;
 
+export const QualificationSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    is_active: z.boolean(),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+export type Qualification = z.infer<typeof QualificationSchema>;
+
+export const CountrySchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    iso2: z.string().optional(),
+    iso3: z.string().optional(),
+    phone_code: z.string().optional(),
+    currency: z.string().optional(),
+    currency_name: z.string().optional(),
+    is_active: z.boolean().optional(),
+    created_at: z.string().optional(),
+    updated_at: z.string().optional(),
+});
+export type Country = z.infer<typeof CountrySchema>;
+
 export const LeadSchema = z.object({
     id: z.string(),
-    assigned_to: z.string().optional(),
+    tenant_id: z.string().optional(),
+    assigned_to: z.union([
+        z.string(),
+        z.object({ id: z.string(), name: z.string().optional() })
+    ]).optional(),
     category_id: z.union([
+        z.string(),
+        z.object({ id: z.string(), name: z.string().optional() })
+    ]).optional(),
+    source_id: z.union([
+        z.string(),
+        z.object({ id: z.string(), name: z.string().optional() })
+    ]).optional(),
+    country_id: z.union([
+        z.string(),
+        z.object({ id: z.string(), name: z.string().optional() })
+    ]).optional(),
+    qualification_id: z.union([
         z.string(),
         z.object({ id: z.string(), name: z.string().optional() })
     ]).optional(),
     first_name: z.string().min(1, "First name is required"),
     last_name: z.string().min(1, "Last name is required"),
-    company: z.string().optional(),
-    title: z.string().optional(),
+    designation: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
     status: z.string(),
-    source_id: z.union([
-        z.string(),
-        z.object({ id: z.string(), name: z.string().optional() })
-    ]).optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });

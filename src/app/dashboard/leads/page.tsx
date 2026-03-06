@@ -89,9 +89,11 @@ export default function LeadsPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Lead Name</TableHead>
-                                    <TableHead>Company</TableHead>
-                                    <TableHead>Contact Info</TableHead>
+                                    <TableHead>Designation</TableHead>
+                                    <TableHead>Country</TableHead>
+                                    <TableHead>Qualification</TableHead>
                                     <TableHead>Category</TableHead>
+                                    <TableHead>Assigned To</TableHead>
                                     <TableHead>Created</TableHead>
                                     <TableHead className="w-[80px]"></TableHead>
                                 </TableRow>
@@ -103,14 +105,25 @@ export default function LeadsPage() {
                                             {lead.first_name} {lead.last_name}
                                         </TableCell>
                                         <TableCell className="text-zinc-500">
-                                            {lead.company || "-"}
+                                            {lead.designation || "-"}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="text-xs space-y-1 text-zinc-600 dark:text-zinc-400">
-                                                {lead.email && <div>{lead.email}</div>}
-                                                {lead.phone && <div>{lead.phone}</div>}
-                                                {(!lead.email && !lead.phone) && "-"}
-                                            </div>
+                                            {typeof lead.country_id === 'object' && lead.country_id !== null ? (
+                                                <span className="text-sm">{lead.country_id.name || "-"}</span>
+                                            ) : lead.country_id ? (
+                                                <span className="text-sm">{lead.country_id}</span>
+                                            ) : (
+                                                <span className="text-zinc-400">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {typeof lead.qualification_id === 'object' && lead.qualification_id !== null ? (
+                                                <span className="text-sm">{lead.qualification_id.name || "-"}</span>
+                                            ) : lead.qualification_id ? (
+                                                <span className="text-sm">{lead.qualification_id}</span>
+                                            ) : (
+                                                <span className="text-zinc-400">-</span>
+                                            )}
                                         </TableCell>
                                         <TableCell>
                                             {typeof lead.category_id === 'object' && lead.category_id !== null ? (
@@ -121,6 +134,15 @@ export default function LeadsPage() {
                                                 <Badge variant="outline">
                                                     {lead.category_id}
                                                 </Badge>
+                                            ) : (
+                                                <span className="text-zinc-400">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {typeof lead.assigned_to === 'object' && lead.assigned_to !== null ? (
+                                                <span className="text-sm">{lead.assigned_to.name || "-"}</span>
+                                            ) : lead.assigned_to ? (
+                                                <span className="text-sm">{lead.assigned_to}</span>
                                             ) : (
                                                 <span className="text-zinc-400">-</span>
                                             )}
