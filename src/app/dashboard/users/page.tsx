@@ -1,6 +1,7 @@
 "use client";
 
 import { useUsers } from "@/hooks/useUsers";
+import { User } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, Search, Shield, User as UserIcon } from "lucide-react";
@@ -10,8 +11,19 @@ import { UserFormModal } from "./components/UserForm";
 export default function UsersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | undefined>();
 
     const { data, isLoading, isError } = useUsers({ name: searchTerm || undefined });
+
+    const handleEdit = (user: User) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
+
+    const handleCreate = () => {
+        setSelectedUser(undefined);
+        setIsModalOpen(true);
+    };
 
     return (
         <div className="space-y-6">
@@ -20,7 +32,7 @@ export default function UsersPage() {
                     <h2 className="text-3xl font-bold tracking-tight">Users</h2>
                     <p className="text-zinc-500 mt-1">Manage platform users, roles, and organizational access.</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={handleCreate}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add User
                 </Button>
@@ -88,7 +100,7 @@ export default function UsersPage() {
                                             {new Date(u.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button variant="ghost" size="sm">Edit</Button>
+                                            <Button variant="ghost" size="sm" onClick={() => handleEdit(u)}>Edit</Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -98,7 +110,7 @@ export default function UsersPage() {
                 )}
             </div>
 
-            <UserFormModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+            <UserFormModal open={isModalOpen} onOpenChange={setIsModalOpen} user={selectedUser} />
         </div>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LeadCategorySchema, LeadCategory } from "@/lib/schemas";
@@ -52,6 +52,13 @@ export function LeadCategoryFormModal({ open, onOpenChange, category }: LeadCate
             description: category?.description || "",
         },
     });
+
+    useEffect(() => {
+        form.reset({
+            name: category?.name || "",
+            description: category?.description || "",
+        });
+    }, [category, form]);
 
     function onSubmit(data: CategoryFormValues) {
         if (isEditing && category) {

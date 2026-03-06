@@ -54,7 +54,6 @@ const editLeadSchema = z.object({
     title: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
-    status: z.enum(["New", "Contacted", "Qualified", "Lost", "Won"]),
     category_id: z.string().optional(),
     source_id: z.string().optional(),
 });
@@ -94,7 +93,6 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             title: "",
             email: "",
             phone: "",
-            status: "New",
             category_id: "",
             source_id: "",
         },
@@ -105,7 +103,6 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             title: lead.title || "",
             email: lead.email || "",
             phone: lead.phone || "",
-            status: (lead.status as any) || "New",
             category_id: typeof lead.category_id === 'object' && lead.category_id !== null
                 ? lead.category_id.id
                 : (lead.category_id || ""),
@@ -124,7 +121,6 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 title: lead.title || "",
                 email: lead.email || "",
                 phone: lead.phone || "",
-                status: (lead.status as any) || "New",
                 category_id: typeof lead.category_id === 'object' && lead.category_id !== null
                     ? lead.category_id.id
                     : (lead.category_id || ""),
@@ -260,30 +256,6 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                         <FormItem>
                                             <FormLabel>Job Title</FormLabel>
                                             <FormControl><Input {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Lead Status</FormLabel>
-                                            <Select key={field.value} onValueChange={field.onChange} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select status" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="New">New</SelectItem>
-                                                    <SelectItem value="Contacted">Contacted</SelectItem>
-                                                    <SelectItem value="Qualified">Qualified</SelectItem>
-                                                    <SelectItem value="Lost">Lost</SelectItem>
-                                                    <SelectItem value="Won">Won</SelectItem>
-                                                </SelectContent>
-                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}

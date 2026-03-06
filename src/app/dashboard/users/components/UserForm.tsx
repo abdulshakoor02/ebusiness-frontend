@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useCreateUser, CreateUserInput } from "@/hooks/useUsers";
+import { useCreateUser, useUpdateUser, CreateUserInput } from "@/hooks/useUsers";
+import { User } from "@/lib/schemas";
 import { useRoles } from "@/hooks/usePermissions";
 import { Loader2 } from "lucide-react";
 
@@ -35,20 +37,23 @@ import {
 interface UserFormModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    user?: User;
 }
 
 const userFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
     mobile: z.string().min(1, "Mobile number is required"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal("")),
     role: z.string().min(1, "Role is required"),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
 
-export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
+export function UserFormModal({ open, onOpenChange, user }: UserFormModalProps) {
     const createUser = useCreateUser();
+    const updateUser = useUpdateUser();
+    const isEditing = !!user;
     const { data: roles, isLoading: isLoadingRoles, isError: isErrorRoles } = useRoles();
 
     const form = useForm<UserFormValues>({
@@ -62,22 +67,60 @@ export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
         },
     });
 
+    useEffect(() => {
+        if (user) {
+            form.reset({
+                name: user.name || "",
+                email: user.email || "",
+                mobile: user.mobile || "",
+                password: "",
+                role: user.role || "viewer",
+            });
+        } else {
+            form.reset({
+                name: "",
+                email: "",
+                mobile: "",
+                password: "",
+                role: "viewer",
+            });
+        }
+    }, [user, form]);
+
     function onSubmit(data: UserFormValues) {
-        createUser.mutate(data, {
-            onSuccess: () => {
-                form.reset();
-                onOpenChange(false);
-            },
-        });
+        if (isEditing && user) {
+            const { password, ...updateData } = data;
+            const payload = password && password.length >= 6 ? data : updateData;
+            updateUser.mutate(
+                { id: user.id, data: payload },
+                {
+                    onSuccess: () => {
+                        form.reset();
+                        onOpenChange(false);
+                    },
+                }
+            );
+        } else {
+            createUser.mutate(data, {
+                onSuccess: () => {
+                    form.reset();
+                    onOpenChange(false);
+                },
+            });
+        }
     }
+
+    const isPending = createUser.isPending || updateUser.isPending;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Add New User</DialogTitle>
+                    <DialogTitle>{isEditing ? "Edit User" : "Add New User"}</DialogTitle>
                     <DialogDescription>
-                        Create a new user profile and assign them a role and organization.
+                        {isEditing
+                            ? "Update user profile details and role."
+                            : "Create a new user profile and assign them a role and organization."}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -132,9 +175,11 @@ export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Temporary Password</FormLabel>
+                                        <FormLabel>
+                                            {isEditing ? "New Password (optional)" : "Temporary Password"}
+                                        </FormLabel>
                                         <FormControl>
-                                            <Input type="password" placeholder="••••••••" {...field} />
+                                            <Input type="password" placeholder="••••••••" {...field} value={field.value || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -176,17 +221,17 @@ export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
                         />
 
                         <div className="flex justify-end gap-3 pt-4">
-                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={createUser.isPending}>
+                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={createUser.isPending}>
-                                {createUser.isPending ? (
+                            <Button type="submit" disabled={isPending}>
+                                {isPending ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Creating...
+                                        {isEditing ? "Saving..." : "Creating..."}
                                     </>
                                 ) : (
-                                    "Create User"
+                                    isEditing ? "Save Changes" : "Create User"
                                 )}
                             </Button>
                         </div>

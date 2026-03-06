@@ -39,7 +39,6 @@ const newLeadSchema = z.object({
     title: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     phone: z.string().optional(),
-    status: z.enum(["New", "Contacted", "Qualified", "Lost", "Won"]),
     category_id: z.string().optional(),
     source_id: z.string().optional(),
     initial_comment: z.string().optional(),
@@ -65,7 +64,6 @@ export default function NewLeadPage() {
             title: "",
             email: "",
             phone: "",
-            status: "New",
             category_id: "",
             source_id: "",
             initial_comment: "",
@@ -205,30 +203,6 @@ export default function NewLeadPage() {
                                             <FormControl>
                                                 <Input placeholder="VP of Sales" {...field} />
                                             </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Lead Status</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select status" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="New">New</SelectItem>
-                                                    <SelectItem value="Contacted">Contacted</SelectItem>
-                                                    <SelectItem value="Qualified">Qualified</SelectItem>
-                                                    <SelectItem value="Lost">Lost</SelectItem>
-                                                    <SelectItem value="Won">Won</SelectItem>
-                                                </SelectContent>
-                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LeadSourceSchema, LeadSource } from "@/lib/schemas";
@@ -51,6 +51,13 @@ export function LeadSourceFormModal({ open, onOpenChange, source }: LeadSourceFo
             description: source?.description || "",
         },
     });
+
+    useEffect(() => {
+        form.reset({
+            name: source?.name || "",
+            description: source?.description || "",
+        });
+    }, [source, form]);
 
     function onSubmit(data: SourceFormValues) {
         if (isEditing && source) {

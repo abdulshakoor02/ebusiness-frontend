@@ -91,7 +91,7 @@ export default function LeadsPage() {
                                     <TableHead>Lead Name</TableHead>
                                     <TableHead>Company</TableHead>
                                     <TableHead>Contact Info</TableHead>
-                                    <TableHead>Status</TableHead>
+                                    <TableHead>Category</TableHead>
                                     <TableHead>Created</TableHead>
                                     <TableHead className="w-[80px]"></TableHead>
                                 </TableRow>
@@ -113,13 +113,17 @@ export default function LeadsPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={
-                                                lead.status.toLowerCase() === 'new' ? 'default' :
-                                                    lead.status.toLowerCase() === 'contacted' ? 'secondary' :
-                                                        lead.status.toLowerCase() === 'qualified' ? 'outline' : 'destructive'
-                                            }>
-                                                {lead.status}
-                                            </Badge>
+                                            {typeof lead.category_id === 'object' && lead.category_id !== null ? (
+                                                <Badge variant="outline">
+                                                    {lead.category_id.name || "Category"}
+                                                </Badge>
+                                            ) : lead.category_id ? (
+                                                <Badge variant="outline">
+                                                    {lead.category_id}
+                                                </Badge>
+                                            ) : (
+                                                <span className="text-zinc-400">-</span>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-zinc-500 text-sm">
                                             {new Date(lead.created_at).toLocaleDateString()}
