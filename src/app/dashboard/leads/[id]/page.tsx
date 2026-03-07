@@ -440,7 +440,9 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                         {comments.map((comment) => (
                                             <div key={comment.id} className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <span className="text-xs font-medium text-zinc-500">User {comment.author_id.slice(-4)}</span>
+                                                    <span className="text-xs font-medium text-zinc-500">
+                                                        {comment.author?.name || `User ${comment.author_id?.slice(-4) || 'Unknown'}`}
+                                                    </span>
                                                     <span className="text-xs text-zinc-400">{new Date(comment.created_at).toLocaleString()}</span>
                                                 </div>
                                                 <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">{comment.content}</p>

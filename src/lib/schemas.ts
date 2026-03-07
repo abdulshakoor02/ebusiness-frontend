@@ -92,7 +92,11 @@ export type LeadCategory = z.infer<typeof LeadCategorySchema>;
 export const LeadCommentSchema = z.object({
     id: z.string(),
     lead_id: z.string(),
-    author_id: z.string(),
+    author_id: z.string().optional(),
+    author: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
     content: z.string().min(1, "Comment cannot be empty"),
     created_at: z.string(),
     updated_at: z.string(),
