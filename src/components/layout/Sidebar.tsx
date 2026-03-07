@@ -48,7 +48,7 @@ export function AppSidebar() {
         <Sidebar className="border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
             <SidebarHeader className="!h-16 flex items-center justify-start px-3 py-0 border-b border-zinc-200 dark:border-zinc-800">
                 <Link href="/dashboard" className="flex items-center w-full h-full transition-opacity hover:opacity-80">
-                    <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={165} height={50} className="rounded-md w-[165px] h-[50px] object-cover object-center" />
+                    <Image src="/1.png" alt="ebusiness+" width={165} height={50} className="rounded-md w-[165px] h-[50px] object-contain" />
                 </Link>
             </SidebarHeader>
             <SidebarContent>

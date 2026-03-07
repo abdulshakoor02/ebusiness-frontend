@@ -29,7 +29,7 @@ export default function LoginPage() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="z-10 flex w-full justify-center mt-8 mb-4"
         >
-          <Image src="/1.png" alt="ebusiness+" width={360} height={99} className="rounded-2xl w-[360px] h-[99px] object-cover object-center" />
+          <Image src="/1.png" alt="ebusiness+" width={360} height={99} className="rounded-2xl w-[360px] h-[99px] object-contain" />
         </motion.div>
 
         <motion.div
@@ -67,7 +67,7 @@ export default function LoginPage() {
         >
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-8">
             <div className="lg:hidden mb-6">
-              <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={200} height={55} className="rounded-xl w-[200px] h-[55px] object-cover object-center" />
+              <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={200} height={55} className="rounded-xl w-[200px] h-[55px] object-contain" />
             </div>
             <h2 className="text-3xl font-semibold tracking-tight mb-2">Welcome back</h2>
             <p className="text-zinc-400">Please enter your details to sign in.</p>
