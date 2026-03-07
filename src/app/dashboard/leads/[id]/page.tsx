@@ -16,10 +16,11 @@ import {
     useCountries,
     useQualifications
 } from "@/hooks/useLeads";
+import { useLeadInvoices, useInvoiceReceipts } from "@/hooks/useInvoices";
 import { useUsers } from "@/hooks/useUsers";
-import { LeadSchema, Lead } from "@/lib/schemas";
+import { LeadSchema, Lead, Invoice, Receipt } from "@/lib/schemas";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle, FileText, Pencil, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,11 @@ import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import Link from "next/link";
 import { AddAppointmentModal } from "../components/AddAppointmentModal";
+import { CreateInvoiceModal } from "../components/CreateInvoiceModal";
+import { EditInvoiceModal } from "../components/EditInvoiceModal";
+import { CreateReceiptModal } from "../components/CreateReceiptModal";
+import { EditReceiptModal } from "../components/EditReceiptModal";
+import { InvoiceCard } from "../components/InvoiceCard";
 
 const editLeadSchema = z.object({
     first_name: z.string().min(1, "First name is required"),
@@ -80,6 +86,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const { data: usersData } = useUsers({ limit: 100 });
     const { data: commentsData, isLoading: isLoadingComments } = useLeadComments(leadId);
     const { data: appointmentsData, isLoading: isLoadingAppointments } = useLeadAppointments(leadId);
+    const { data: invoices, isLoading: isLoadingInvoices } = useLeadInvoices(leadId);
     // Mutations
     const updateLead = useUpdateLead();
     const createComment = useCreateLeadComment();
@@ -99,6 +106,13 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     // State for Modals & Local Forms
     const [newComment, setNewComment] = useState("");
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+
+    // Invoice & Receipt Modals State
+    const [isCreateInvoiceModalOpen, setIsCreateInvoiceModalOpen] = useState(false);
+    const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+    const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+    const [creatingReceiptForInvoice, setCreatingReceiptForInvoice] = useState<string | null>(null);
+    const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
 
     const form = useForm<EditLeadFormValues>({
         resolver: zodResolver(editLeadSchema),
@@ -513,6 +527,44 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                             )}
                         </AccordionContent>
                     </AccordionItem>
+
+                    {/* Invoices Accordion */}
+                    <AccordionItem value="invoices" className="px-6 border-b-0">
+                        <AccordionTrigger className="text-lg font-semibold hover:no-underline py-6">
+                            <span className="flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-zinc-500" />
+                                Invoices
+                            </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4 pb-6">
+                            <div className="flex justify-end">
+                                <Button type="button" size="sm" onClick={() => setIsCreateInvoiceModalOpen(true)}>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Create Invoice
+                                </Button>
+                            </div>
+
+                            {isLoadingInvoices ? (
+                                <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
+                            ) : !invoices || invoices.length === 0 ? (
+                                <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                    No invoices created yet.
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {invoices.map((invoice) => (
+                                        <InvoiceCard
+                                            key={invoice.id}
+                                            invoice={invoice}
+                                            onEdit={() => setEditingInvoiceId(invoice.id)}
+                                            onAddReceipt={() => setCreatingReceiptForInvoice(invoice.id)}
+                                            onEditReceipt={(receipt) => setSelectedReceipt(receipt)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </div>
 
@@ -520,6 +572,30 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 leadId={leadId}
                 open={isAppointmentModalOpen}
                 onOpenChange={setIsAppointmentModalOpen}
+            />
+
+            <CreateInvoiceModal
+                leadId={leadId}
+                open={isCreateInvoiceModalOpen}
+                onOpenChange={setIsCreateInvoiceModalOpen}
+            />
+
+            <EditInvoiceModal
+                invoiceId={editingInvoiceId}
+                open={!!editingInvoiceId}
+                onOpenChange={(open) => !open && setEditingInvoiceId(null)}
+            />
+
+            <CreateReceiptModal
+                invoiceId={creatingReceiptForInvoice}
+                open={!!creatingReceiptForInvoice}
+                onOpenChange={(open) => !open && setCreatingReceiptForInvoice(null)}
+            />
+
+            <EditReceiptModal
+                receipt={selectedReceipt}
+                open={!!selectedReceipt}
+                onOpenChange={(open) => !open && setSelectedReceipt(null)}
             />
         </div>
     );

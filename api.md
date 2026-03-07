@@ -163,6 +163,27 @@ The system supports **row-level security** via permission rules. Each permission
     "role": "admin",
     "created_at": "2026-02-15T12:00:00Z",
     "updated_at": "2026-02-15T12:00:00Z"
+  },
+  "tax": 5.0,
+  "currency": "AED"
+}
+```
+
+> **Note:** The `tax` and `currency` fields are only included for non-superadmin users (admin and user roles). These values are fetched from the user's tenant configuration.
+> - `tax`: Tax percentage from tenant settings (e.g., 5.0 for 5%)
+> - `currency`: Currency code from tenant's country (e.g., "AED", "USD")
+
+**Response for Superadmin:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR...",
+  "user": {
+    "id": "60a7e...",
+    "name": "Super Admin",
+    "email": "superadmin@example.com",
+    "role": "superadmin",
+    "created_at": "2026-02-15T12:00:00Z",
+    "updated_at": "2026-02-15T12:00:00Z"
   }
 }
 ```

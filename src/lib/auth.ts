@@ -37,13 +37,16 @@ export const authOptions: NextAuthOptions = {
                     const data = await res.json();
 
                     if (res.ok && data?.token && data?.user) {
+                        const isSuperadmin = data.user.role === 'superadmin';
                         return {
                             id: data.user.id,
                             name: data.user.name,
                             email: data.user.email,
                             role: data.user.role,
-                            tenant_id: data.user.tenant_id,
+                            tenant_id: data.user.tenant_id || "",
                             token: data.token,
+                            tax: isSuperadmin ? 0 : (data.tax ?? 0),
+                            currency: isSuperadmin ? "AED" : (data.currency ?? "USD"),
                         };
                     }
                     return null;
@@ -61,6 +64,8 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role;
                 token.tenant_id = user.tenant_id;
                 token.accessToken = user.token;
+                token.tax = user.tax ?? 0;
+                token.currency = user.currency ?? "USD";
             }
             return token;
         },
@@ -70,6 +75,8 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = token.role as string;
                 session.user.tenant_id = token.tenant_id as string;
                 session.user.token = token.accessToken as string;
+                session.user.tax = (token.tax as number) ?? 0;
+                session.user.currency = (token.currency as string) ?? "USD";
             }
             return session;
         }

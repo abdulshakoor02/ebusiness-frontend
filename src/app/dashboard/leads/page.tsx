@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLeads, useLeadCategories } from "@/hooks/useLeads";
-import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 
 import { AddAppointmentModal } from "./components/AddAppointmentModal";
+import { CreateInvoiceModal } from "./components/CreateInvoiceModal";
 
 export default function LeadsPage() {
     const router = useRouter();
@@ -81,11 +82,20 @@ export default function LeadsPage() {
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
     const [appointmentLeadId, setAppointmentLeadId] = useState<string | null>(null);
 
+    // Invoice Modal State
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const [invoiceLeadId, setInvoiceLeadId] = useState<string | null>(null);
+
     const leads = data?.data || [];
 
     const handleAddAppointment = (leadId: string) => {
         setAppointmentLeadId(leadId);
         setIsAppointmentModalOpen(true);
+    };
+
+    const handleCreateInvoice = (leadId: string) => {
+        setInvoiceLeadId(leadId);
+        setIsInvoiceModalOpen(true);
     };
 
     const navigateToEdit = (leadId: string) => {
@@ -237,6 +247,10 @@ export default function LeadsPage() {
                                                             <CalendarPlus className="mr-2 h-4 w-4 text-blue-500" />
                                                             Add Appointment
                                                         </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleCreateInvoice(lead.id)}>
+                                                            <FileText className="mr-2 h-4 w-4 text-green-600" />
+                                                            Create Invoice
+                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
@@ -279,6 +293,12 @@ export default function LeadsPage() {
                 leadId={appointmentLeadId}
                 open={isAppointmentModalOpen}
                 onOpenChange={setIsAppointmentModalOpen}
+            />
+
+            <CreateInvoiceModal
+                leadId={invoiceLeadId}
+                open={isInvoiceModalOpen}
+                onOpenChange={setIsInvoiceModalOpen}
             />
         </div>
     );

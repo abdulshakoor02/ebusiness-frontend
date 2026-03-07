@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useProducts, useDeleteProduct } from "@/hooks/useProducts";
 import { Product } from "@/lib/schemas";
+import { formatCurrency } from "@/lib/utils";
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -35,8 +37,11 @@ import {
 import { ProductFormModal } from "./components/ProductForm";
 
 export default function ProductsPage() {
+    const { data: session } = useSession();
     const { data, isLoading } = useProducts();
     const deleteProduct = useDeleteProduct();
+
+    const currency = session?.user?.currency || "USD";
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
@@ -74,10 +79,7 @@ export default function ProductsPage() {
     };
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(price);
+        return formatCurrency(price, currency);
     };
 
     return (
