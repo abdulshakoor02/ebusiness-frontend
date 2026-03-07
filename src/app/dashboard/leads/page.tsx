@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLeads, useLeadCategories } from "@/hooks/useLeads";
-import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2 } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,8 @@ export default function LeadsPage() {
     const [searchInput, setSearchInput] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     // Debounce search input
     useEffect(() => {
@@ -50,13 +52,26 @@ export default function LeadsPage() {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    // Fetch leads with filters
+    // Reset to page 1 when search, category, or page size changes
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, selectedCategory, pageSize]);
+
+    // Calculate offset
+    const offset = (page - 1) * pageSize;
+
+    // Fetch leads with filters and pagination
     const { data, isLoading } = useLeads({
         search: searchQuery,
         category_id: selectedCategory,
-        limit: 10,
-        offset: 0,
+        limit: pageSize,
+        offset,
     });
+
+    const total = data?.total || 0;
+    const totalPages = Math.ceil(total / pageSize);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
 
     // Fetch categories for dropdown
     const { data: categoriesData } = useLeadCategories({ limit: 100 });
@@ -102,22 +117,37 @@ export default function LeadsPage() {
                             onChange={(e) => setSearchInput(e.target.value)}
                         />
                     </div>
-                    <Select
-                        value={selectedCategory || "all"}
-                        onValueChange={(value) => setSelectedCategory(value === "all" ? undefined : value)}
-                    >
-                        <SelectTrigger className="w-full sm:w-[200px]">
-                            <SelectValue placeholder="All Categories" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Categories</SelectItem>
-                            {categories.map((category) => (
-                                <SelectItem key={category.id} value={category.id}>
-                                    {category.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <Select
+                            value={selectedCategory || "all"}
+                            onValueChange={(value) => setSelectedCategory(value === "all" ? undefined : value)}
+                        >
+                            <SelectTrigger className="w-full sm:w-[200px]">
+                                <SelectValue placeholder="All Categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                {categories.map((category) => (
+                                    <SelectItem key={category.id} value={category.id}>
+                                        {category.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select
+                            value={pageSize.toString()}
+                            onValueChange={(value) => setPageSize(Number(value))}
+                        >
+                            <SelectTrigger className="w-[100px]">
+                                <SelectValue placeholder="10" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="50">50</SelectItem>
+                                <SelectItem value="100">100</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 {isLoading ? (
@@ -132,88 +162,116 @@ export default function LeadsPage() {
                         </Button>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Lead Name</TableHead>
-                                    <TableHead>Designation</TableHead>
-                                    <TableHead>Country</TableHead>
-                                    <TableHead>Qualification</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Assigned To</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="w-[80px]"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {leads.map((lead) => (
-                                    <TableRow key={lead.id} className="cursor-pointer group" onClick={() => navigateToEdit(lead.id)}>
-                                        <TableCell className="font-medium group-hover:underline">
-                                            {lead.first_name} {lead.last_name}
-                                        </TableCell>
-                                        <TableCell className="text-zinc-500">
-                                            {lead.designation || "-"}
-                                        </TableCell>
-                                        <TableCell>
-                                            {lead.country?.name ? (
-                                                <span className="text-sm">{lead.country.name}</span>
-                                            ) : (
-                                                <span className="text-zinc-400">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            {lead.qualification?.name ? (
-                                                <span className="text-sm">{lead.qualification.name}</span>
-                                            ) : (
-                                                <span className="text-zinc-400">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            {lead.category?.name ? (
-                                                <Badge variant="outline">
-                                                    {lead.category.name}
-                                                </Badge>
-                                            ) : (
-                                                <span className="text-zinc-400">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            {lead.assigned_to_user?.name ? (
-                                                <span className="text-sm">{lead.assigned_to_user.name}</span>
-                                            ) : (
-                                                <span className="text-zinc-400">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-zinc-500 text-sm">
-                                            {new Date(lead.created_at).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell onClick={(e) => e.stopPropagation()}>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Open menu</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => navigateToEdit(lead.id)}>
-                                                        <Pencil className="mr-2 h-4 w-4" />
-                                                        View / Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={() => handleAddAppointment(lead.id)}>
-                                                        <CalendarPlus className="mr-2 h-4 w-4 text-blue-500" />
-                                                        Add Appointment
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                    <>
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Lead Name</TableHead>
+                                        <TableHead>Designation</TableHead>
+                                        <TableHead>Country</TableHead>
+                                        <TableHead>Qualification</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Assigned To</TableHead>
+                                        <TableHead>Created</TableHead>
+                                        <TableHead className="w-[80px]"></TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
+                                </TableHeader>
+                                <TableBody>
+                                    {leads.map((lead) => (
+                                        <TableRow key={lead.id} className="cursor-pointer group" onClick={() => navigateToEdit(lead.id)}>
+                                            <TableCell className="font-medium group-hover:underline">
+                                                {lead.first_name} {lead.last_name}
+                                            </TableCell>
+                                            <TableCell className="text-zinc-500">
+                                                {lead.designation || "-"}
+                                            </TableCell>
+                                            <TableCell>
+                                                {lead.country?.name ? (
+                                                    <span className="text-sm">{lead.country.name}</span>
+                                                ) : (
+                                                    <span className="text-zinc-400">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {lead.qualification?.name ? (
+                                                    <span className="text-sm">{lead.qualification.name}</span>
+                                                ) : (
+                                                    <span className="text-zinc-400">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {lead.category?.name ? (
+                                                    <Badge variant="outline">
+                                                        {lead.category.name}
+                                                    </Badge>
+                                                ) : (
+                                                    <span className="text-zinc-400">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {lead.assigned_to_user?.name ? (
+                                                    <span className="text-sm">{lead.assigned_to_user.name}</span>
+                                                ) : (
+                                                    <span className="text-zinc-400">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-zinc-500 text-sm">
+                                                {new Date(lead.created_at).toLocaleDateString()}
+                                            </TableCell>
+                                            <TableCell onClick={(e) => e.stopPropagation()}>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Open menu</span>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => navigateToEdit(lead.id)}>
+                                                            <Pencil className="mr-2 h-4 w-4" />
+                                                            View / Edit
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onClick={() => handleAddAppointment(lead.id)}>
+                                                            <CalendarPlus className="mr-2 h-4 w-4 text-blue-500" />
+                                                            Add Appointment
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                        <div className="flex items-center justify-between px-4 py-4 border-t border-zinc-200 dark:border-zinc-800">
+                            <div className="text-sm text-zinc-500">
+                                Showing {Math.min((page - 1) * pageSize + 1, total)} - {Math.min(page * pageSize, total)} of {total} leads
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPage(p => p - 1)}
+                                    disabled={!hasPrevPage}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm text-zinc-500">
+                                    Page {page} of {totalPages || 1}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPage(p => p + 1)}
+                                    disabled={!hasNextPage}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </>
                 )}
             </div>
 
