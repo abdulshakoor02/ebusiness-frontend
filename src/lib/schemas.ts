@@ -176,3 +176,16 @@ export const LeadSchema = z.object({
     updated_at: z.string(),
 });
 export type Lead = z.infer<typeof LeadSchema>;
+
+// Products Module Schemas
+
+export const ProductSchema = z.object({
+    id: z.string(),
+    tenant_id: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    price: z.number(),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+export type Product = z.infer<typeof ProductSchema>;
