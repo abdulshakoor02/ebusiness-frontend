@@ -29,7 +29,7 @@ export default function LoginPage() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="z-10 flex w-full justify-center mt-8 mb-4"
         >
-          <Image src="/ebusiness_logo.jpeg" alt="ebusiness+" width={360} height={99} className="rounded-2xl w-[360px] h-[99px] object-cover object-center" />
+          <Image src="/1.png" alt="ebusiness+" width={360} height={99} className="rounded-2xl w-[360px] h-[99px] object-cover object-center" />
         </motion.div>
 
         <motion.div
