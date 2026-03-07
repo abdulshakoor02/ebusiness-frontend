@@ -30,7 +30,7 @@ const protectedNavigation = [
     { name: "Tenants", href: "/dashboard/tenants", icon: Building2, permission: "can_create_tenants" },
     { name: "Users", href: "/dashboard/users", icon: Users, permission: "can_create_users" },
     { name: "Role Permissions", href: "/dashboard/access-management/role-permissions", icon: Shield, permission: "can_view-roles_permissions" },
-    { name: "Permission Rules", href: "/dashboard/access-management/rules", icon: FileKey, permission: "can_view-rules_permissions" },
+    { name: "Permission Rules", href: "/dashboard/access-management/rules", icon: FileKey, permission: "can_create_tenants" },
 ];
 
 export function AppSidebar() {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Shield, FileKey } from "lucide-react";
+import { usePermissions } from "@/context/PermissionsContext";
 
 export default function AccessManagementLayout({
     children,
@@ -10,6 +11,7 @@ export default function AccessManagementLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const { hasPermission } = usePermissions();
 
     const tabs = [
         {
@@ -17,11 +19,11 @@ export default function AccessManagementLayout({
             href: "/dashboard/access-management/role-permissions",
             icon: Shield,
         },
-        {
+        ...(hasPermission("can_create_tenants") ? [{
             name: "Permission Rules",
             href: "/dashboard/access-management/rules",
             icon: FileKey,
-        },
+        }] : []),
     ];
 
     return (

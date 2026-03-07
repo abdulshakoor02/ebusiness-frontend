@@ -1,17 +1,34 @@
 "use client";
 
 import { useTenants } from "@/hooks/useTenants";
+import { useCountries } from "@/hooks/useLeads";
+import { Tenant } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Loader2, Plus, Search, Pencil } from "lucide-react";
 import { useState } from "react";
 import { TenantFormModal } from "./components/TenantForm";
 
 export default function TenantsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedTenant, setSelectedTenant] = useState<Tenant | undefined>();
 
+    const { data: countriesData } = useCountries({ limit: 200 });
+    const countries = countriesData?.data || [];
+    
     const { data, isLoading, isError } = useTenants({ name: searchTerm || undefined });
+
+    const getCountryName = (countryId?: string) => {
+        if (!countryId) return "-";
+        const country = countries.find(c => c.id === countryId);
+        return country?.name || "-";
+    };
+
+    const formatTax = (tax?: number) => {
+        if (!tax) return "-";
+        return `${tax}%`;
+    };
 
     return (
         <div className="space-y-6">
@@ -20,7 +37,10 @@ export default function TenantsPage() {
                     <h2 className="text-3xl font-bold tracking-tight">Tenants</h2>
                     <p className="text-zinc-500 mt-1">Manage global organizations and their sub-resources.</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => {
+                    setSelectedTenant(undefined);
+                    setIsModalOpen(true);
+                }}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add Tenant
                 </Button>
@@ -39,7 +59,6 @@ export default function TenantsPage() {
             </div>
 
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm w-full divide-y divide-zinc-200 dark:divide-zinc-800">
-                {/* Table logic simplified here out of raw Tanstack table for speed/layout demonstration - usually we embed a robust <DataTable> here */}
                 {isLoading ? (
                     <div className="p-8 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
@@ -55,7 +74,10 @@ export default function TenantsPage() {
                                 <tr>
                                     <th className="px-6 py-4 font-medium">Organization</th>
                                     <th className="px-6 py-4 font-medium">Contact</th>
-                                    <th className="px-6 py-4 font-medium">Location</th>
+                                    <th className="px-6 py-4 font-medium">Country</th>
+                                    <th className="px-6 py-4 font-medium">Tax %</th>
+                                    <th className="px-6 py-4 font-medium">Next Invoice #</th>
+                                    <th className="px-6 py-4 font-medium">Next Receipt #</th>
                                     <th className="px-6 py-4 font-medium">Created On</th>
                                     <th className="px-6 py-4 font-medium text-right">Actions</th>
                                 </tr>
@@ -71,13 +93,32 @@ export default function TenantsPage() {
                                         </td>
                                         <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400">{tenant.email}</td>
                                         <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400">
-                                            {tenant.address?.city ? `${tenant.address.city}, ${tenant.address.country}` : "Unknown"}
+                                            {getCountryName(tenant.country_id)}
+                                        </td>
+                                        <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400">
+                                            {formatTax(tenant.tax)}
+                                        </td>
+                                        <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400">
+                                            {tenant.next_invoice_number || "-"}
+                                        </td>
+                                        <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400">
+                                            {tenant.next_receipt_number || "-"}
                                         </td>
                                         <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400">
                                             {new Date(tenant.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button variant="ghost" size="sm">Edit</Button>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm"
+                                                onClick={() => {
+                                                    setSelectedTenant(tenant);
+                                                    setIsModalOpen(true);
+                                                }}
+                                            >
+                                                <Pencil className="h-4 w-4 mr-1" />
+                                                Edit
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -87,7 +128,11 @@ export default function TenantsPage() {
                 )}
             </div>
 
-            <TenantFormModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+            <TenantFormModal 
+                open={isModalOpen} 
+                onOpenChange={setIsModalOpen} 
+                tenant={selectedTenant}
+            />
         </div>
     );
 }
