@@ -26,6 +26,7 @@ export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 
 export const AddressSchema = z.object({
     street: z.string().optional(),
+    address_line: z.string().optional(),
     city: z.string().optional(),
     state: z.string().optional(),
     country: z.string().optional(),
@@ -39,6 +40,10 @@ export const TenantSchema = z.object({
     email: z.string().email(),
     logo_url: z.string().url().optional().or(z.literal("")),
     address: AddressSchema.optional(),
+    country_id: z.string().optional(),
+    tax: z.number().optional(),
+    next_invoice_number: z.number().optional(),
+    next_receipt_number: z.number().optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });
@@ -49,6 +54,8 @@ export const CreateTenantSchema = z.object({
     email: z.string().email("Invalid email address"),
     logo_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
     address: AddressSchema.optional(),
+    country_id: z.string().optional(),
+    tax: z.string().optional(),
     admin_user: z.object({
         name: z.string().min(1, "Name is required"),
         email: z.string().email("Invalid email address"),
@@ -58,6 +65,18 @@ export const CreateTenantSchema = z.object({
     }),
 });
 export type CreateTenantInput = z.input<typeof CreateTenantSchema>;
+
+export const EditTenantSchema = z.object({
+    name: z.string().min(1, "Company Name is required"),
+    email: z.string().email("Invalid email address"),
+    logo_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    address: AddressSchema.optional(),
+    country_id: z.string().optional(),
+    tax: z.string().optional(),
+    next_invoice_number: z.number().optional(),
+    next_receipt_number: z.number().optional(),
+});
+export type EditTenantInput = z.input<typeof EditTenantSchema>;
 
 // Leads Module Schemas
 
@@ -73,7 +92,11 @@ export type LeadCategory = z.infer<typeof LeadCategorySchema>;
 export const LeadCommentSchema = z.object({
     id: z.string(),
     lead_id: z.string(),
-    author_id: z.string(),
+    author_id: z.string().optional(),
+    author: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
     content: z.string().min(1, "Comment cannot be empty"),
     created_at: z.string(),
     updated_at: z.string(),
@@ -176,3 +199,16 @@ export const LeadSchema = z.object({
     updated_at: z.string(),
 });
 export type Lead = z.infer<typeof LeadSchema>;
+
+// Products Module Schemas
+
+export const ProductSchema = z.object({
+    id: z.string(),
+    tenant_id: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    price: z.number(),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+export type Product = z.infer<typeof ProductSchema>;
