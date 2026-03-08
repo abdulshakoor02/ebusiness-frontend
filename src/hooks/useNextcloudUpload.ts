@@ -115,6 +115,7 @@ export function useNextcloudUpload() {
     const deleteFromNextcloud = async (fileUrl: string): Promise<boolean> => {
         if (!fileUrl) return true;
 
+        console.log("Deleting file:", fileUrl);
         setIsUploading(true);
         try {
             const response = await fetch("/api/nextcloud", {
@@ -123,6 +124,7 @@ export function useNextcloudUpload() {
                 body: JSON.stringify({ action: "delete", fileUrl }),
             });
             const data = await response.json();
+            console.log("Delete response:", data);
             if (!data.success) {
                 toast.error("Failed to delete old file");
             }

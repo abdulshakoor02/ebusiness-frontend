@@ -424,22 +424,34 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                         id="logo-upload-edit"
                                     />
                                     {logoPreview ? (
-                                        <div className="relative w-24 h-24 border rounded-md overflow-hidden">
-                                            <img
-                                                src={logoPreview}
-                                                alt="Logo preview"
-                                                className="w-full h-full object-contain"
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                size="icon"
-                                                className="absolute top-1 right-1 h-6 w-6"
-                                                onClick={clearSelectedLogo}
-                                                disabled={isPending}
+                                        <div className="space-y-2">
+                                            <div className="relative w-24 h-24 border rounded-md overflow-hidden group">
+                                                <img
+                                                    src={logoPreview}
+                                                    alt="Logo preview"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute top-1 right-1 h-6 w-6"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        clearSelectedLogo();
+                                                    }}
+                                                    disabled={isPending}
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                            <label
+                                                htmlFor="logo-upload-edit"
+                                                className="block text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                                             >
-                                                <X className="h-3 w-3" />
-                                            </Button>
+                                                Click to replace image
+                                            </label>
                                         </div>
                                     ) : (
                                         <label

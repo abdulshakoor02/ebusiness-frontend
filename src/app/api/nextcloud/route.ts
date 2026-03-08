@@ -120,8 +120,11 @@ export async function POST(request: NextRequest) {
                 }
 
                 const baseUrl = NEXTCLOUD_URL?.replace(/\/$/, "") || "";
-                const path = fileUrl.replace(`${baseUrl}/remote.php/dav/files/${NEXTCLOUD_USERNAME}/`, "");
-                const url = getWebDavUrl(encodeURIComponent(path));
+                const encodedPath = fileUrl.replace(`${baseUrl}/remote.php/dav/files/${NEXTCLOUD_USERNAME}/`, "");
+                const decodedPath = decodeURIComponent(encodedPath);
+                const url = getWebDavUrl(decodedPath);
+
+                console.log("Deleting file at:", url);
 
                 const response = await fetch(url, {
                     method: "DELETE",
@@ -129,6 +132,8 @@ export async function POST(request: NextRequest) {
                         Authorization: getAuthHeader(),
                     },
                 });
+
+                console.log("Delete response status:", response.status);
 
                 return NextResponse.json({ success: response.status === 204 || response.status === 200 || response.status === 404 });
             }
