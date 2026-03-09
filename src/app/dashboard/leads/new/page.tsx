@@ -47,6 +47,14 @@ const newLeadSchema = z.object({
     qualification_id: z.string().optional(),
     assigned_to: z.string().optional(),
     initial_comment: z.string().optional(),
+    address: z.object({
+        street: z.string().optional(),
+        address_line: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zip_code: z.string().optional(),
+        country: z.string().optional(),
+    }).optional(),
 });
 type NewLeadFormValues = z.infer<typeof newLeadSchema>;
 
@@ -85,6 +93,14 @@ export default function NewLeadPage() {
             qualification_id: "",
             assigned_to: "",
             initial_comment: "",
+            address: {
+                street: "",
+                address_line: "",
+                city: "",
+                state: "",
+                zip_code: "",
+                country: "",
+            },
         },
     });
 
@@ -315,6 +331,95 @@ export default function NewLeadPage() {
                                                 searchPlaceholder="Search users..."
                                                 emptyText="No users found"
                                             />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Address</CardTitle>
+                            <CardDescription>Address details for this lead.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="address.street"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Street</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="123 Main St" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.address_line"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Address Line 2</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Suite, Apt, Unit, etc." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.city"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>City</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="New York" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.state"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>State / Province</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="NY" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.zip_code"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>ZIP / Postal Code</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="10001" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.country"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Country</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="United States" {...field} />
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}

@@ -6,6 +6,8 @@ declare module "next-auth" {
         role: string;
         tenant_id: string;
         token: string;
+        tax?: number;
+        currency?: string;
     }
     interface Session {
         user: User & {
@@ -13,6 +15,8 @@ declare module "next-auth" {
             role: string;
             tenant_id: string;
             token: string;
+            tax: number;
+            currency: string;
         };
     }
 }

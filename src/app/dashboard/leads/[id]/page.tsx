@@ -16,10 +16,11 @@ import {
     useCountries,
     useQualifications
 } from "@/hooks/useLeads";
+import { useLeadInvoices, useInvoiceReceipts } from "@/hooks/useInvoices";
 import { useUsers } from "@/hooks/useUsers";
-import { LeadSchema, Lead } from "@/lib/schemas";
+import { LeadSchema, Lead, Invoice, Receipt } from "@/lib/schemas";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle, FileText, Pencil, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,13 @@ import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import Link from "next/link";
 import { AddAppointmentModal } from "../components/AddAppointmentModal";
+import { CreateInvoiceModal } from "../components/CreateInvoiceModal";
+import { EditInvoiceModal } from "../components/EditInvoiceModal";
+import { CreateReceiptModal } from "../components/CreateReceiptModal";
+import { EditReceiptModal } from "../components/EditReceiptModal";
+import { InvoiceCard } from "../components/InvoiceCard";
+import { InvoicePreviewModal } from "../components/InvoicePreviewModal";
+import { ReceiptPreviewModal } from "../components/ReceiptPreviewModal";
 
 const editLeadSchema = z.object({
     first_name: z.string().min(1, "First name is required"),
@@ -62,6 +70,14 @@ const editLeadSchema = z.object({
     country_id: z.string().optional(),
     qualification_id: z.string().optional(),
     assigned_to: z.string().optional(),
+    address: z.object({
+        street: z.string().optional(),
+        address_line: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zip_code: z.string().optional(),
+        country: z.string().optional(),
+    }).optional(),
 });
 type EditLeadFormValues = z.infer<typeof editLeadSchema>;
 
@@ -80,6 +96,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const { data: usersData } = useUsers({ limit: 100 });
     const { data: commentsData, isLoading: isLoadingComments } = useLeadComments(leadId);
     const { data: appointmentsData, isLoading: isLoadingAppointments } = useLeadAppointments(leadId);
+    const { data: invoices, isLoading: isLoadingInvoices } = useLeadInvoices(leadId);
     // Mutations
     const updateLead = useUpdateLead();
     const createComment = useCreateLeadComment();
@@ -100,6 +117,18 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const [newComment, setNewComment] = useState("");
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
 
+    // Invoice & Receipt Modals State
+    const [isCreateInvoiceModalOpen, setIsCreateInvoiceModalOpen] = useState(false);
+    const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+    const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+    const [creatingReceiptForInvoice, setCreatingReceiptForInvoice] = useState<string | null>(null);
+    const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
+    
+    // Preview Modals State
+    const [previewingInvoice, setPreviewingInvoice] = useState<Invoice | null>(null);
+    const [previewingReceipt, setPreviewingReceipt] = useState<Receipt | null>(null);
+    const [previewReceipts, setPreviewReceipts] = useState<Receipt[]>([]);
+
     const form = useForm<EditLeadFormValues>({
         resolver: zodResolver(editLeadSchema),
         defaultValues: {
@@ -113,6 +142,14 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             country_id: "",
             qualification_id: "",
             assigned_to: "",
+            address: {
+                street: "",
+                address_line: "",
+                city: "",
+                state: "",
+                zip_code: "",
+                country: "",
+            },
         },
         values: lead ? {
             first_name: lead.first_name || "",
@@ -135,6 +172,14 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             assigned_to: typeof lead.assigned_to === 'object' && lead.assigned_to !== null
                 ? lead.assigned_to.id
                 : (lead.assigned_to || ""),
+            address: lead.address || {
+                street: "",
+                address_line: "",
+                city: "",
+                state: "",
+                zip_code: "",
+                country: "",
+            },
         } : undefined,
     });
 
@@ -161,6 +206,14 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 assigned_to: typeof lead.assigned_to === 'object' && lead.assigned_to !== null
                     ? lead.assigned_to.id
                     : (lead.assigned_to || ""),
+                address: lead.address || {
+                    street: "",
+                    address_line: "",
+                    city: "",
+                    state: "",
+                    zip_code: "",
+                    country: "",
+                },
             });
         }
     }, [lead, form]);
@@ -385,6 +438,95 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                         </CardContent>
                     </Card>
 
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Address</CardTitle>
+                            <CardDescription>Address details for this lead.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="address.street"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Street</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="123 Main St" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.address_line"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Address Line 2</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Suite, Apt, Unit, etc." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.city"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>City</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="New York" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.state"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>State / Province</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="NY" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.zip_code"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>ZIP / Postal Code</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="10001" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="address.country"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Country</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="United States" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     <div className="flex justify-end">
                         <Button type="submit" disabled={updateLead.isPending}>
                             {updateLead.isPending ? (
@@ -513,6 +655,50 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                             )}
                         </AccordionContent>
                     </AccordionItem>
+
+                    {/* Invoices Accordion */}
+                    <AccordionItem value="invoices" className="px-6 border-b-0">
+                        <AccordionTrigger className="text-lg font-semibold hover:no-underline py-6">
+                            <span className="flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-zinc-500" />
+                                Invoices
+                            </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4 pb-6">
+                            <div className="flex justify-end">
+                                <Button type="button" size="sm" onClick={() => setIsCreateInvoiceModalOpen(true)}>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Create Invoice
+                                </Button>
+                            </div>
+
+                            {isLoadingInvoices ? (
+                                <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
+                            ) : !invoices || invoices.length === 0 ? (
+                                <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                    No invoices created yet.
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {invoices.map((invoice) => (
+                                        <InvoiceCard
+                                            key={invoice.id}
+                                            invoice={invoice}
+                                            onEdit={() => setEditingInvoiceId(invoice.id)}
+                                            onAddReceipt={() => setCreatingReceiptForInvoice(invoice.id)}
+                                            onEditReceipt={(receipt) => setSelectedReceipt(receipt)}
+                                            onPreviewInvoice={(invoice) => setPreviewingInvoice(invoice)}
+                                            onPreviewReceipt={(receipt, allReceipts) => {
+                                                setPreviewingInvoice(invoice);
+                                                setPreviewingReceipt(receipt);
+                                                setPreviewReceipts(allReceipts);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </div>
 
@@ -520,6 +706,49 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 leadId={leadId}
                 open={isAppointmentModalOpen}
                 onOpenChange={setIsAppointmentModalOpen}
+            />
+
+            <CreateInvoiceModal
+                leadId={leadId}
+                open={isCreateInvoiceModalOpen}
+                onOpenChange={setIsCreateInvoiceModalOpen}
+            />
+
+            <EditInvoiceModal
+                invoiceId={editingInvoiceId}
+                open={!!editingInvoiceId}
+                onOpenChange={(open) => !open && setEditingInvoiceId(null)}
+            />
+
+            <CreateReceiptModal
+                invoiceId={creatingReceiptForInvoice}
+                open={!!creatingReceiptForInvoice}
+                onOpenChange={(open) => !open && setCreatingReceiptForInvoice(null)}
+            />
+
+            <EditReceiptModal
+                receipt={selectedReceipt}
+                open={!!selectedReceipt}
+                onOpenChange={(open) => !open && setSelectedReceipt(null)}
+            />
+
+            <InvoicePreviewModal
+                invoice={previewingInvoice}
+                open={!!previewingInvoice}
+                onOpenChange={(open) => !open && setPreviewingInvoice(null)}
+            />
+
+            <ReceiptPreviewModal
+                receipt={previewingReceipt}
+                receipts={previewReceipts}
+                invoice={previewingInvoice}
+                open={!!previewingReceipt}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setPreviewingReceipt(null);
+                        setPreviewReceipts([]);
+                    }
+                }}
             />
         </div>
     );

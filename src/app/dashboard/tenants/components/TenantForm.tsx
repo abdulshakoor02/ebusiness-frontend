@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tenant, CreateTenantSchema, EditTenantSchema } from "@/lib/schemas";
 import { useCreateTenant, useUpdateTenant } from "@/hooks/useTenants";
 import { useCountries } from "@/hooks/useLeads";
-import { Loader2 } from "lucide-react";
+import { useNextcloudUpload } from "@/hooks/useNextcloudUpload";
+import { Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -44,9 +45,20 @@ interface TenantFormModalProps {
 export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalProps) {
     const createTenant = useCreateTenant();
     const updateTenant = useUpdateTenant();
+    const { uploadToNextcloud, deleteFromNextcloud, isUploading } = useNextcloudUpload();
     const isEditing = !!tenant;
     const { data: countriesData } = useCountries({ limit: 200 });
     const countries = countriesData?.data || [];
+
+    const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const getProxyImageUrl = (url: string) => {
+        if (!url) return null;
+        const encodedUrl = encodeURIComponent(url);
+        return `/api/nextcloud/image?url=${encodedUrl}`;
+    };
 
     const createForm = useForm({
         resolver: zodResolver(CreateTenantSchema),
@@ -94,6 +106,11 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
     });
 
     useEffect(() => {
+        if (!open) {
+            setSelectedLogo(null);
+            setLogoPreview(null);
+            return;
+        }
         if (tenant) {
             editForm.reset({
                 name: tenant.name || "",
@@ -110,6 +127,8 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                     zip_code: tenant.address?.zip_code || "",
                 },
             });
+            setSelectedLogo(null);
+            setLogoPreview(tenant.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
         } else {
             createForm.reset({
                 name: "",
@@ -133,27 +152,75 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                     role: "admin",
                 },
             });
+            setSelectedLogo(null);
+            setLogoPreview(null);
         }
     }, [tenant, open, editForm, createForm]);
 
-    function onCreateSubmit(data: any) {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedLogo(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const clearSelectedLogo = () => {
+        setSelectedLogo(null);
+        setLogoPreview(tenant?.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    async function onCreateSubmit(data: any) {
+        let logoUrl: string | undefined = undefined;
+
+        if (selectedLogo) {
+            const uploadedUrl = await uploadToNextcloud(data.name, selectedLogo);
+            if (uploadedUrl) {
+                logoUrl = uploadedUrl;
+            }
+        }
+
         const payload = {
             ...data,
+            logo_url: logoUrl,
             country_id: data.country_id || undefined,
             tax: data.tax ? parseFloat(data.tax) : undefined,
         };
         createTenant.mutate(payload, {
             onSuccess: () => {
                 createForm.reset();
+                setSelectedLogo(null);
+                setLogoPreview(null);
                 onOpenChange(false);
             },
         });
     }
 
-    function onEditSubmit(data: any) {
+    async function onEditSubmit(data: any) {
         if (!tenant) return;
+
+        let logoUrl: string | undefined = undefined;
+
+        if (selectedLogo) {
+            if (tenant.logo_url) {
+                await deleteFromNextcloud(tenant.logo_url);
+            }
+            const uploadedUrl = await uploadToNextcloud(data.name, selectedLogo);
+            if (uploadedUrl) {
+                logoUrl = uploadedUrl;
+            }
+        }
+
         const payload = {
             ...data,
+            logo_url: logoUrl,
             country_id: data.country_id || undefined,
             tax: data.tax ? parseFloat(data.tax) : undefined,
             next_invoice_number: tenant.next_invoice_number,
@@ -164,13 +231,15 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
             {
                 onSuccess: () => {
                     editForm.reset();
+                    setSelectedLogo(null);
+                    setLogoPreview(null);
                     onOpenChange(false);
                 },
             }
         );
     }
 
-    const isPending = createTenant.isPending || updateTenant.isPending;
+    const isPending = createTenant.isPending || updateTenant.isPending || isUploading;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -344,19 +413,57 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     />
                                 </div>
 
-                                <FormField
-                                    control={editForm.control}
-                                    name="logo_url"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Logo URL (Optional)</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="https://example.com/logo.png" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
+                                <div className="space-y-2">
+                                    <FormLabel>Logo (Optional)</FormLabel>
+                                    <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg,.svg"
+                                        onChange={handleFileChange}
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        id="logo-upload-edit"
+                                    />
+                                    {logoPreview ? (
+                                        <div className="space-y-2">
+                                            <div className="relative w-24 h-24 border rounded-md overflow-hidden group">
+                                                <img
+                                                    src={logoPreview}
+                                                    alt="Logo preview"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute top-1 right-1 h-6 w-6"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        clearSelectedLogo();
+                                                    }}
+                                                    disabled={isPending}
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                            <label
+                                                htmlFor="logo-upload-edit"
+                                                className="block text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                                            >
+                                                Click to replace image
+                                            </label>
+                                        </div>
+                                    ) : (
+                                        <label
+                                            htmlFor="logo-upload-edit"
+                                            className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                                        >
+                                            <Upload className="w-6 h-6 text-zinc-400 mb-2" />
+                                            <span className="text-sm text-zinc-500">Click to upload</span>
+                                            <span className="text-xs text-zinc-400">PNG, JPG, SVG (max 5MB)</span>
+                                        </label>
                                     )}
-                                />
+                                </div>
                             </div>
 
                             <div className="flex justify-end gap-3 pt-4">
@@ -536,19 +643,45 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     />
                                 </div>
 
-                                <FormField
-                                    control={createForm.control}
-                                    name="logo_url"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Logo URL (Optional)</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="https://example.com/logo.png" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
+                                <div className="space-y-2">
+                                    <FormLabel>Logo (Optional)</FormLabel>
+                                    <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg,.svg"
+                                        onChange={handleFileChange}
+                                        ref={(e) => { if (!tenant) fileInputRef.current = e; }}
+                                        className="hidden"
+                                        id="logo-upload-create"
+                                    />
+                                    {logoPreview ? (
+                                        <div className="relative w-24 h-24 border rounded-md overflow-hidden">
+                                            <img
+                                                src={logoPreview}
+                                                alt="Logo preview"
+                                                className="w-full h-full object-contain"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="icon"
+                                                className="absolute top-1 right-1 h-6 w-6"
+                                                onClick={clearSelectedLogo}
+                                                disabled={isPending}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <label
+                                            htmlFor="logo-upload-create"
+                                            className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                                        >
+                                            <Upload className="w-6 h-6 text-zinc-400 mb-2" />
+                                            <span className="text-sm text-zinc-500">Click to upload</span>
+                                            <span className="text-xs text-zinc-400">PNG, JPG, SVG (max 5MB)</span>
+                                        </label>
                                     )}
-                                />
+                                </div>
                             </div>
 
                             <Separator className="my-4" />

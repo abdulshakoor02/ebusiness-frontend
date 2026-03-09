@@ -195,10 +195,64 @@ export const LeadSchema = z.object({
         id: z.string(),
         name: z.string().optional()
     }).optional(),
+    address: z.object({
+        street: z.string().optional(),
+        address_line: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zip_code: z.string().optional(),
+        country: z.string().optional(),
+    }).optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });
 export type Lead = z.infer<typeof LeadSchema>;
+
+// Invoice Module Types
+
+export const InvoiceItemSchema = z.object({
+    product_id: z.string(),
+    product_name: z.string(),
+    quantity: z.number(),
+    unit_price: z.number(),
+    total: z.number(),
+});
+export type InvoiceItem = z.infer<typeof InvoiceItemSchema>;
+
+export const InvoiceSchema = z.object({
+    id: z.string(),
+    tenant_id: z.string(),
+    lead_id: z.string(),
+    invoice_number: z.number(),
+    items: z.array(InvoiceItemSchema),
+    subtotal: z.number(),
+    discount: z.number(),
+    tax_percentage: z.number(),
+    tax_amount: z.number(),
+    total_amount: z.number(),
+    paid_amount: z.number(),
+    paid_amount_vat: z.number(),
+    due_date: z.string(),
+    status: z.enum(["pending", "partial", "paid"]),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+export type Invoice = z.infer<typeof InvoiceSchema>;
+
+// Receipt Module Types
+
+export const ReceiptSchema = z.object({
+    id: z.string(),
+    tenant_id: z.string(),
+    invoice_id: z.string(),
+    receipt_number: z.number(),
+    amount_paid: z.number(),
+    tax_amount: z.number(),
+    total_paid: z.number(),
+    payment_date: z.string(),
+    created_at: z.string(),
+});
+export type Receipt = z.infer<typeof ReceiptSchema>;
 
 // Products Module Schemas
 
