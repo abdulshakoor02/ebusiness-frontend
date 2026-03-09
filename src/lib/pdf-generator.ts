@@ -22,6 +22,14 @@ interface LeadData {
     email?: string;
     phone?: string;
     designation?: string;
+    address?: {
+        street?: string;
+        address_line?: string;
+        city?: string;
+        state?: string;
+        country?: string;
+        zip_code?: string;
+    };
 }
 
 export function formatCurrency(amount: number, currency: string = "USD"): string {
@@ -38,24 +46,58 @@ export function formatCurrency(amount: number, currency: string = "USD"): string
     }
 }
 
-export function generateInvoicePDF(
+async function fetchImageAsBase64(url: string): Promise<string | null> {
+    try {
+        const proxyUrl = `/api/nextcloud/image?url=${encodeURIComponent(url)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) return null;
+        const blob = await response.blob();
+        return await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.error("Failed to fetch image", e);
+        return null;
+    }
+}
+
+export async function generateInvoicePDF(
     invoice: Invoice,
     lead: LeadData,
     tenant: TenantData,
     currency: string = "USD"
-): void {
+): Promise<void> {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+
+    let companyStartY = 25;
+
+    if (tenant.logo_url) {
+        const base64 = await fetchImageAsBase64(tenant.logo_url);
+        if (base64) {
+            doc.addImage({
+                imageData: base64,
+                x: 20,
+                y: 15,
+                width: 20,
+                height: 20
+            });
+            companyStartY = 45;
+        }
+    }
 
     // Header - Company Info
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text(tenant.name || "Company", 20, 25);
+    doc.text(tenant.name || "Company", 20, companyStartY);
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    
-    let yPos = 35;
+
+    let yPos = companyStartY + 10;
     if (tenant.address) {
         if (tenant.address.street) {
             doc.text(tenant.address.street, 20, yPos);
@@ -88,7 +130,7 @@ export function generateInvoicePDF(
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    
+
     const invoiceNum = `INV-${String(invoice.invoice_number).padStart(3, '0')}`;
     doc.text(`Invoice #: ${invoiceNum}`, pageWidth - 20, 35, { align: "right" });
     doc.text(`Date: ${new Date(invoice.created_at).toLocaleDateString()}`, pageWidth - 20, 42, { align: "right" });
@@ -113,22 +155,44 @@ export function generateInvoicePDF(
     }
 
     // Bill To Section
-    yPos = 75;
+    yPos = Math.max(yPos + 10, 80);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text("Bill To:", 20, yPos);
-    
+
     yPos += 8;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     const customerName = `${lead.first_name || ""} ${lead.last_name || ""}`.trim() || "Customer";
     doc.text(customerName, 20, yPos);
-    
+
     yPos += 5;
     if (lead.designation) {
         doc.text(lead.designation, 20, yPos);
         yPos += 5;
     }
+
+    if (lead.address) {
+        if (lead.address.street) {
+            doc.text(lead.address.street, 20, yPos);
+            yPos += 5;
+        }
+        if (lead.address.address_line) {
+            doc.text(lead.address.address_line, 20, yPos);
+            yPos += 5;
+        }
+        const cityLine = [
+            lead.address.city,
+            lead.address.state,
+            lead.address.zip_code,
+            lead.address.country
+        ].filter(Boolean).join(", ");
+        if (cityLine) {
+            doc.text(cityLine, 20, yPos);
+            yPos += 5;
+        }
+    }
+
     if (lead.email) {
         doc.text(lead.email, 20, yPos);
         yPos += 5;
@@ -167,19 +231,19 @@ export function generateInvoicePDF(
 
     // Summary Section
     const finalY = (doc as any).lastAutoTable.finalY + 15;
-    
+
     const summaryX = pageWidth - 80;
     doc.setFontSize(10);
-    
+
     doc.text("Subtotal:", summaryX, finalY);
     doc.text(formatCurrency(invoice.subtotal, currency), pageWidth - 20, finalY, { align: "right" });
-    
+
     doc.text("Discount:", summaryX, finalY + 7);
     doc.text(`-${formatCurrency(invoice.discount, currency)}`, pageWidth - 20, finalY + 7, { align: "right" });
-    
+
     doc.text(`Tax (${invoice.tax_percentage}%):`, summaryX, finalY + 14);
     doc.text(formatCurrency(invoice.tax_amount, currency), pageWidth - 20, finalY + 14, { align: "right" });
-    
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text("TOTAL:", summaryX, finalY + 24);
@@ -191,7 +255,7 @@ export function generateInvoicePDF(
         doc.setFontSize(10);
         doc.text("Paid:", summaryX, finalY + 34);
         doc.text(formatCurrency(invoice.paid_amount_vat, currency), pageWidth - 20, finalY + 34, { align: "right" });
-        
+
         const remaining = invoice.total_amount - invoice.paid_amount_vat;
         if (remaining > 0) {
             doc.setTextColor(220, 53, 69);
@@ -210,29 +274,45 @@ export function generateInvoicePDF(
     doc.save(`invoice-${invoiceNum}.pdf`);
 }
 
-export function generateReceiptPDF(
+export async function generateReceiptPDF(
     receipts: Receipt[],
     currentReceiptIndex: number,
     invoice: Invoice,
     lead: LeadData,
     tenant: TenantData,
     currency: string = "USD"
-): void {
+): Promise<void> {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
     const currentReceipt = receipts[currentReceiptIndex];
     const cumulativeReceipts = receipts.slice(0, currentReceiptIndex + 1);
 
+    let companyStartY = 25;
+
+    if (tenant.logo_url) {
+        const base64 = await fetchImageAsBase64(tenant.logo_url);
+        if (base64) {
+            doc.addImage({
+                imageData: base64,
+                x: 20,
+                y: 15,
+                width: 20,
+                height: 20
+            });
+            companyStartY = 45;
+        }
+    }
+
     // Header - Company Info
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text(tenant.name || "Company", 20, 25);
+    doc.text(tenant.name || "Company", 20, companyStartY);
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    
-    let yPos = 35;
+
+    let yPos = companyStartY + 10;
     if (tenant.address) {
         if (tenant.address.street) {
             doc.text(tenant.address.street, 20, yPos);
@@ -256,13 +336,13 @@ export function generateReceiptPDF(
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    
+
     const receiptNum = `RCP-${String(currentReceipt.receipt_number).padStart(3, '0')}`;
     doc.text(`Receipt #: ${receiptNum}`, pageWidth - 20, 35, { align: "right" });
     doc.text(`Date: ${new Date(currentReceipt.payment_date).toLocaleDateString()}`, pageWidth - 20, 42, { align: "right" });
 
     // Invoice Reference
-    yPos = 60;
+    yPos = Math.max(yPos + 10, 65);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text("Invoice Reference:", 20, yPos);
@@ -306,19 +386,19 @@ export function generateReceiptPDF(
 
     // Summary Section
     const finalY = (doc as any).lastAutoTable.finalY + 15;
-    
+
     doc.setFontSize(10);
-    
+
     // Total paid before this receipt
     if (currentReceiptIndex > 0) {
         const previousTotal = cumulativeReceipts
             .slice(0, currentReceiptIndex)
             .reduce((sum, r) => sum + r.total_paid, 0);
-        
+
         doc.text("Previous Payments:", 20, finalY);
         doc.text(formatCurrency(previousTotal, currency), pageWidth - 20, finalY, { align: "right" });
     }
-    
+
     // Current payment
     doc.setFont("helvetica", "bold");
     doc.text("This Payment:", 20, finalY + 10);
@@ -350,9 +430,44 @@ export function generateReceiptPDF(
     doc.text("Customer:", 20, finalY + 45);
     doc.setFont("helvetica", "normal");
     const customerName = `${lead.first_name || ""} ${lead.last_name || ""}`.trim() || "Customer";
-    doc.text(customerName, 20, finalY + 52);
+
+    let customerYPos = finalY + 52;
+    doc.text(customerName, 20, customerYPos);
+    customerYPos += 5;
+
+    if (lead.designation) {
+        doc.text(lead.designation, 20, customerYPos);
+        customerYPos += 5;
+    }
+
+    if (lead.address) {
+        if (lead.address.street) {
+            doc.text(lead.address.street, 20, customerYPos);
+            customerYPos += 5;
+        }
+        if (lead.address.address_line) {
+            doc.text(lead.address.address_line, 20, customerYPos);
+            customerYPos += 5;
+        }
+        const cityLine = [
+            lead.address.city,
+            lead.address.state,
+            lead.address.zip_code,
+            lead.address.country
+        ].filter(Boolean).join(", ");
+        if (cityLine) {
+            doc.text(cityLine, 20, customerYPos);
+            customerYPos += 5;
+        }
+    }
+
     if (lead.email) {
-        doc.text(lead.email, 20, finalY + 59);
+        doc.text(lead.email, 20, customerYPos);
+        customerYPos += 5;
+    }
+    if (lead.phone) {
+        doc.text(lead.phone, 20, customerYPos);
+        customerYPos += 5;
     }
 
     // Footer
