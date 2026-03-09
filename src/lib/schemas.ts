@@ -195,6 +195,14 @@ export const LeadSchema = z.object({
         id: z.string(),
         name: z.string().optional()
     }).optional(),
+    address: z.object({
+        street: z.string().optional(),
+        address_line: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zip_code: z.string().optional(),
+        country: z.string().optional(),
+    }).optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });

@@ -7,16 +7,18 @@ import { useInvoiceReceipts } from "@/hooks/useInvoices";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Pencil, Plus, ChevronDown, ChevronRight, Receipt as ReceiptIcon } from "lucide-react";
+import { Loader2, Pencil, Plus, ChevronDown, ChevronRight, Receipt as ReceiptIcon, Eye } from "lucide-react";
 
 interface InvoiceCardProps {
     invoice: Invoice;
     onEdit: () => void;
     onAddReceipt: () => void;
     onEditReceipt: (receipt: Receipt) => void;
+    onPreviewInvoice: (invoice: Invoice) => void;
+    onPreviewReceipt: (receipt: Receipt, allReceipts: Receipt[]) => void;
 }
 
-export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt }: InvoiceCardProps) {
+export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt, onPreviewInvoice, onPreviewReceipt }: InvoiceCardProps) {
     const { data: session } = useSession();
     const [isExpanded, setIsExpanded] = useState(false);
     const { data: receipts, isLoading: isLoadingReceipts } = useInvoiceReceipts(invoice.id);
@@ -54,7 +56,17 @@ export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt }: In
                             </div>
                         </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onPreviewInvoice(invoice);
+                            }}
+                        >
+                            <Eye className="h-4 w-4" />
+                        </Button>
                         {invoice.status !== 'paid' && (
                             <div className="text-sm text-zinc-500">
                                 Paid: {formatPrice(invoice.paid_amount_vat)}
@@ -163,6 +175,15 @@ export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt }: In
                                             <span className="text-zinc-500 text-xs">
                                                 {new Date(receipt.payment_date).toLocaleDateString()}
                                             </span>
+                                            <Button 
+                                                type="button" 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="h-6 w-6"
+                                                onClick={() => onPreviewReceipt(receipt, receipts || [])}
+                                            >
+                                                <Eye className="h-3 w-3" />
+                                            </Button>
                                             <Button 
                                                 type="button" 
                                                 variant="ghost" 
