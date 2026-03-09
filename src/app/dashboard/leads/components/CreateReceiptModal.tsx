@@ -34,9 +34,14 @@ export function CreateReceiptModal({ invoiceId, open, onOpenChange, onSuccess }:
     const [amountPaid, setAmountPaid] = useState<number>(0);
     const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
 
-    const remainingBalance = useMemo(() => {
+    const remainingPrincipal = useMemo(() => {
         if (!invoice) return 0;
-        return invoice.total_amount - invoice.paid_amount;
+        return (invoice.subtotal - invoice.discount) - invoice.paid_amount;
+    }, [invoice]);
+
+    const remainingTotalVat = useMemo(() => {
+        if (!invoice) return 0;
+        return invoice.total_amount - invoice.paid_amount_vat;
     }, [invoice]);
 
     const taxAmount = useMemo(() => {
@@ -118,34 +123,48 @@ export function CreateReceiptModal({ invoiceId, open, onOpenChange, onSuccess }:
                         {/* Invoice Summary */}
                         <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span className="text-zinc-500">Invoice Total</span>
+                                <span className="text-zinc-500">Total Invoice (Inc. Tax)</span>
                                 <span className="font-medium">{formatPrice(invoice.total_amount)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-zinc-500">Already Paid</span>
+                                <span className="text-zinc-500">Already Paid (Inc. Tax)</span>
                                 <span>{formatPrice(invoice.paid_amount_vat)}</span>
                             </div>
                             <div className="border-t border-zinc-200 dark:border-zinc-700 pt-2 flex justify-between font-medium">
-                                <span>Remaining Balance</span>
-                                <span className="text-green-600">{formatPrice(remainingBalance)}</span>
+                                <span>Remaining Balance (Inc. Tax)</span>
+                                <span className="text-green-600">{formatPrice(remainingTotalVat)}</span>
                             </div>
                         </div>
 
                         {/* Amount Input */}
                         <div className="space-y-2">
-                            <div className="text-sm font-medium">Amount to Pay</div>
+                            <div className="flex justify-between items-center text-sm font-medium">
+                                <span>Principal Amount (Excl. Tax)</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-zinc-500 font-normal">Max: {formatPrice(remainingPrincipal)}</span>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 text-xs px-2"
+                                        onClick={() => setAmountPaid(remainingPrincipal)}
+                                    >
+                                        Pay Full
+                                    </Button>
+                                </div>
+                            </div>
                             <Input
                                 type="number"
                                 min={0.01}
-                                max={remainingBalance}
+                                max={remainingPrincipal}
                                 step={0.01}
                                 value={amountPaid || ""}
                                 onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
-                                placeholder="Enter amount"
+                                placeholder="Enter principal amount"
                                 className="text-lg"
                             />
-                            {amountPaid > remainingBalance && (
-                                <p className="text-sm text-red-500">Amount exceeds remaining balance</p>
+                            {amountPaid > remainingPrincipal && (
+                                <p className="text-sm text-red-500">Amount exceeds remaining principal of {formatPrice(remainingPrincipal)}</p>
                             )}
                         </div>
 
@@ -185,7 +204,7 @@ export function CreateReceiptModal({ invoiceId, open, onOpenChange, onSuccess }:
                             </Button>
                             <Button
                                 type="button"
-                                disabled={createReceipt.isPending || !amountPaid || amountPaid <= 0 || amountPaid > remainingBalance}
+                                disabled={createReceipt.isPending || !amountPaid || amountPaid <= 0 || amountPaid > remainingPrincipal}
                                 onClick={onSubmit}
                             >
                                 {createReceipt.isPending ? (
