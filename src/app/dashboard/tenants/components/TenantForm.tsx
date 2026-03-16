@@ -52,7 +52,10 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
 
     const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [selectedStamp, setSelectedStamp] = useState<File | null>(null);
+    const [stampPreview, setStampPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const stampFileInputRef = useRef<HTMLInputElement>(null);
 
     const getProxyImageUrl = (url: string) => {
         if (!url) return null;
@@ -66,6 +69,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
             name: "",
             email: "",
             logo_url: "",
+            stamp_url: "",
             country_id: "",
             tax: "",
             address: {
@@ -92,6 +96,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
             name: "",
             email: "",
             logo_url: "",
+            stamp_url: "",
             country_id: "",
             tax: "",
             address: {
@@ -109,6 +114,8 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
         if (!open) {
             setSelectedLogo(null);
             setLogoPreview(null);
+            setSelectedStamp(null);
+            setStampPreview(null);
             return;
         }
         if (tenant) {
@@ -116,6 +123,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                 name: tenant.name || "",
                 email: tenant.email || "",
                 logo_url: tenant.logo_url || "",
+                stamp_url: tenant.stamp_url || "",
                 country_id: tenant.country_id || "",
                 tax: tenant.tax ? String(tenant.tax) : "",
                 address: {
@@ -129,11 +137,14 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
             });
             setSelectedLogo(null);
             setLogoPreview(tenant.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
+            setSelectedStamp(null);
+            setStampPreview(tenant.stamp_url ? getProxyImageUrl(tenant.stamp_url) : null);
         } else {
             createForm.reset({
                 name: "",
                 email: "",
                 logo_url: "",
+                stamp_url: "",
                 country_id: "",
                 tax: "",
                 address: {
@@ -177,8 +188,29 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
         }
     };
 
+    const handleStampFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedStamp(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setStampPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const clearSelectedStamp = () => {
+        setSelectedStamp(null);
+        setStampPreview(tenant?.stamp_url ? getProxyImageUrl(tenant.stamp_url) : null);
+        if (stampFileInputRef.current) {
+            stampFileInputRef.current.value = "";
+        }
+    };
+
     async function onCreateSubmit(data: any) {
         let logoUrl: string | undefined = undefined;
+        let stampUrl: string | undefined = undefined;
 
         if (selectedLogo) {
             const uploadedUrl = await uploadToNextcloud(data.name, selectedLogo);
@@ -187,9 +219,17 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
             }
         }
 
+        if (selectedStamp) {
+            const uploadedUrl = await uploadToNextcloud(data.name, selectedStamp);
+            if (uploadedUrl) {
+                stampUrl = uploadedUrl;
+            }
+        }
+
         const payload = {
             ...data,
             logo_url: logoUrl,
+            stamp_url: stampUrl,
             country_id: data.country_id || undefined,
             tax: data.tax ? parseFloat(data.tax) : undefined,
         };
@@ -198,6 +238,8 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                 createForm.reset();
                 setSelectedLogo(null);
                 setLogoPreview(null);
+                setSelectedStamp(null);
+                setStampPreview(null);
                 onOpenChange(false);
             },
         });
@@ -207,6 +249,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
         if (!tenant) return;
 
         let logoUrl: string | undefined = undefined;
+        let stampUrl: string | undefined = undefined;
 
         if (selectedLogo) {
             if (tenant.logo_url) {
@@ -218,9 +261,20 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
             }
         }
 
+        if (selectedStamp) {
+            if (tenant.stamp_url) {
+                await deleteFromNextcloud(tenant.stamp_url);
+            }
+            const uploadedUrl = await uploadToNextcloud(data.name, selectedStamp);
+            if (uploadedUrl) {
+                stampUrl = uploadedUrl;
+            }
+        }
+
         const payload = {
             ...data,
             logo_url: logoUrl,
+            stamp_url: stampUrl,
             country_id: data.country_id || undefined,
             tax: data.tax ? parseFloat(data.tax) : undefined,
             next_invoice_number: tenant.next_invoice_number,
@@ -233,6 +287,8 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                     editForm.reset();
                     setSelectedLogo(null);
                     setLogoPreview(null);
+                    setSelectedStamp(null);
+                    setStampPreview(null);
                     onOpenChange(false);
                 },
             }
@@ -464,6 +520,58 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                         </label>
                                     )}
                                 </div>
+
+                                <div className="space-y-2">
+                                    <FormLabel>Stamp (Optional)</FormLabel>
+                                    <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg,.svg"
+                                        onChange={handleStampFileChange}
+                                        ref={stampFileInputRef}
+                                        className="hidden"
+                                        id="stamp-upload-edit"
+                                    />
+                                    {stampPreview ? (
+                                        <div className="space-y-2">
+                                            <div className="relative w-24 h-24 border rounded-md overflow-hidden group">
+                                                <img
+                                                    src={stampPreview}
+                                                    alt="Stamp preview"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute top-1 right-1 h-6 w-6"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        clearSelectedStamp();
+                                                    }}
+                                                    disabled={isPending}
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                            <label
+                                                htmlFor="stamp-upload-edit"
+                                                className="block text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                                            >
+                                                Click to replace image
+                                            </label>
+                                        </div>
+                                    ) : (
+                                        <label
+                                            htmlFor="stamp-upload-edit"
+                                            className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                                        >
+                                            <Upload className="w-6 h-6 text-zinc-400 mb-2" />
+                                            <span className="text-sm text-zinc-500">Click to upload</span>
+                                            <span className="text-xs text-zinc-400">PNG, JPG, SVG (max 5MB)</span>
+                                        </label>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex justify-end gap-3 pt-4">
@@ -674,6 +782,46 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     ) : (
                                         <label
                                             htmlFor="logo-upload-create"
+                                            className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                                        >
+                                            <Upload className="w-6 h-6 text-zinc-400 mb-2" />
+                                            <span className="text-sm text-zinc-500">Click to upload</span>
+                                            <span className="text-xs text-zinc-400">PNG, JPG, SVG (max 5MB)</span>
+                                        </label>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <FormLabel>Stamp (Optional)</FormLabel>
+                                    <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg,.svg"
+                                        onChange={handleStampFileChange}
+                                        ref={(e) => { if (!tenant) stampFileInputRef.current = e; }}
+                                        className="hidden"
+                                        id="stamp-upload-create"
+                                    />
+                                    {stampPreview ? (
+                                        <div className="relative w-24 h-24 border rounded-md overflow-hidden">
+                                            <img
+                                                src={stampPreview}
+                                                alt="Stamp preview"
+                                                className="w-full h-full object-contain"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="icon"
+                                                className="absolute top-1 right-1 h-6 w-6"
+                                                onClick={clearSelectedStamp}
+                                                disabled={isPending}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <label
+                                            htmlFor="stamp-upload-create"
                                             className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-6 h-6 text-zinc-400 mb-2" />

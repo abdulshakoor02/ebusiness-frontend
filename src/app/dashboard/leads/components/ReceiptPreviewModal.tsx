@@ -199,8 +199,17 @@ export function ReceiptPreviewModal({ receipt, receipts, invoice, open, onOpenCh
                                 </table>
                             </div>
 
-                            {/* Financial Summary */}
-                            <div className="flex justify-end pt-6">
+                            {/* Financial Summary & Stamp */}
+                            <div className="flex flex-col sm:flex-row justify-between items-start pt-6 gap-6">
+                                <div>
+                                    {tenant?.stamp_url && (
+                                        <img
+                                            src={getProxyImageUrl(tenant.stamp_url) || ""}
+                                            alt="Company Stamp"
+                                            className="w-32 h-32 object-contain opacity-90 mix-blend-multiply dark:mix-blend-screen"
+                                        />
+                                    )}
+                                </div>
                                 <div className="w-80 space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-zinc-500">Previous Payments</span>
