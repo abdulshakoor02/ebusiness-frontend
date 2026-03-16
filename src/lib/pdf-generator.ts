@@ -14,6 +14,7 @@ interface TenantData {
         zip_code?: string;
     };
     logo_url?: string;
+    stamp_url?: string;
 }
 
 interface LeadData {
@@ -290,6 +291,11 @@ export async function generateReceiptPDF(
 
     let companyStartY = 25;
 
+    let stampBase64: string | null = null;
+    if (tenant.stamp_url) {
+        stampBase64 = await fetchImageAsBase64(tenant.stamp_url);
+    }
+
     if (tenant.logo_url) {
         const base64 = await fetchImageAsBase64(tenant.logo_url);
         if (base64) {
@@ -386,6 +392,17 @@ export async function generateReceiptPDF(
 
     // Summary Section
     const finalY = (doc as any).lastAutoTable.finalY + 15;
+
+    // Stamp
+    if (stampBase64) {
+        doc.addImage({
+            imageData: stampBase64,
+            x: (pageWidth / 2) - 17.5, // Center the stamp horizontally
+            y: finalY - 5, // Slightly adjust vertically to align with the summary text block
+            width: 35,
+            height: 35
+        });
+    }
 
     doc.setFontSize(10);
 
