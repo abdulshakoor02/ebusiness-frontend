@@ -31,6 +31,7 @@ const protectedNavigation = [
     { name: "Users", href: "/dashboard/users", icon: Users, permission: "can_create_users" },
     { name: "Role Permissions", href: "/dashboard/access-management/role-permissions", icon: Shield, permission: "can_view-roles_permissions" },
     { name: "Permission Rules", href: "/dashboard/access-management/rules", icon: FileKey, permission: "can_create_tenants" },
+    { name: "Company Info", href: "/dashboard/company-info", icon: Building2, permission: "can_update_user-tenants" },
 ];
 
 export function AppSidebar() {
