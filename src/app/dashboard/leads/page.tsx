@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLeads, useLeadCategories } from "@/hooks/useLeads";
+import { DateRangePicker, type DateField } from "@/components/date-range-picker";
 import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,11 @@ export default function LeadsPage() {
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    
+    // Date filter states
+    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+    const [dateField, setDateField] = useState<DateField>('created_at');
 
     // Debounce search input
     useEffect(() => {
@@ -53,18 +59,26 @@ export default function LeadsPage() {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    // Reset to page 1 when search, category, or page size changes
+    // Reset to page 1 when filters change
     useEffect(() => {
         setPage(1);
-    }, [searchQuery, selectedCategory, pageSize]);
+    }, [searchQuery, selectedCategory, pageSize, startDate, endDate, dateField]);
 
     // Calculate offset
     const offset = (page - 1) * pageSize;
+
+    const formatDateForAPI = (date: Date | undefined): string | undefined => {
+        if (!date) return undefined;
+        return date.toISOString();
+    };
 
     // Fetch leads with filters and pagination
     const { data, isLoading } = useLeads({
         search: searchQuery,
         category_id: selectedCategory,
+        date_from: startDate ? formatDateForAPI(startDate) : undefined,
+        date_to: endDate ? formatDateForAPI(endDate) : undefined,
+        date_field: startDate && endDate ? dateField : undefined,
         limit: pageSize,
         offset,
     });
@@ -144,6 +158,16 @@ export default function LeadsPage() {
                                 ))}
                             </SelectContent>
                         </Select>
+                        <DateRangePicker
+                            startDate={startDate}
+                            endDate={endDate}
+                            onStartDateChange={setStartDate}
+                            onEndDateChange={setEndDate}
+                            dateField={dateField}
+                            onDateFieldChange={setDateField}
+                            showFieldSelector={true}
+                            placeholder="Filter by date"
+                        />
                         <Select
                             value={pageSize.toString()}
                             onValueChange={(value) => setPageSize(Number(value))}

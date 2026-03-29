@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadSource, Country, Qualification } from "@/lib/schemas";
 import { toast } from "sonner";
+import { startOfDay, endOfDay } from "date-fns";
 
 // --- Categories ---
 
@@ -151,14 +152,38 @@ export function useDeleteLeadSource() {
 
 // --- Leads ---
 
-export function useLeads(params?: { search?: string; category_id?: string; limit?: number; offset?: number }) {
+export function useLeads(params?: { 
+    search?: string; 
+    category_id?: string; 
+    date_from?: string;
+    date_to?: string;
+    date_field?: 'created_at' | 'updated_at' | 'converted_at';
+    limit?: number; 
+    offset?: number 
+}) {
     return useQuery({
         queryKey: ["leads", params],
         queryFn: async () => {
+            const filters: Record<string, unknown> = {};
+            
+            if (params?.category_id) {
+                filters.category_id = params.category_id;
+            }
+            
+            if (params?.date_from) {
+                filters.date_from = startOfDay(new Date(params.date_from)).toISOString();
+            }
+            
+            if (params?.date_to) {
+                filters.date_to = endOfDay(new Date(params.date_to)).toISOString();
+            }
+            
+            if (params?.date_field && params?.date_from && params?.date_to) {
+                filters.date_field = params.date_field;
+            }
+            
             const res = await apiClient.post<{ data: Lead[]; total: number }>("/leads/list", {
-                filters: params?.category_id ? {
-                    category_id: params.category_id
-                } : {},
+                filters,
                 search: params?.search || undefined,
                 limit: params?.limit || 10,
                 offset: params?.offset || 0,
