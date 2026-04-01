@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLeads, useLeadCategories } from "@/hooks/useLeads";
 import { DateRangePicker, type DateField } from "@/components/date-range-picker";
-import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText, Phone } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 
 import { AddAppointmentModal } from "./components/AddAppointmentModal";
+import { AddFollowUpModal } from "./components/AddFollowUpModal";
 import { CreateInvoiceModal } from "./components/CreateInvoiceModal";
 
 export default function LeadsPage() {
@@ -96,6 +97,10 @@ export default function LeadsPage() {
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
     const [appointmentLeadId, setAppointmentLeadId] = useState<string | null>(null);
 
+    // Follow-Up Modal State
+    const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
+    const [followUpLeadId, setFollowUpLeadId] = useState<string | null>(null);
+
     // Invoice Modal State
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const [invoiceLeadId, setInvoiceLeadId] = useState<string | null>(null);
@@ -105,6 +110,11 @@ export default function LeadsPage() {
     const handleAddAppointment = (leadId: string) => {
         setAppointmentLeadId(leadId);
         setIsAppointmentModalOpen(true);
+    };
+
+    const handleAddFollowUp = (leadId: string) => {
+        setFollowUpLeadId(leadId);
+        setIsFollowUpModalOpen(true);
     };
 
     const handleCreateInvoice = (leadId: string) => {
@@ -271,6 +281,10 @@ export default function LeadsPage() {
                                                             <CalendarPlus className="mr-2 h-4 w-4 text-blue-500" />
                                                             Add Appointment
                                                         </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleAddFollowUp(lead.id)}>
+                                                            <Phone className="mr-2 h-4 w-4 text-orange-500" />
+                                                            Add Follow Up
+                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleCreateInvoice(lead.id)}>
                                                             <FileText className="mr-2 h-4 w-4 text-green-600" />
                                                             Create Invoice
@@ -317,6 +331,12 @@ export default function LeadsPage() {
                 leadId={appointmentLeadId}
                 open={isAppointmentModalOpen}
                 onOpenChange={setIsAppointmentModalOpen}
+            />
+
+            <AddFollowUpModal
+                leadId={followUpLeadId}
+                open={isFollowUpModalOpen}
+                onOpenChange={setIsFollowUpModalOpen}
             />
 
             <CreateInvoiceModal

@@ -120,6 +120,24 @@ export const LeadAppointmentSchema = z.object({
 });
 export type LeadAppointment = z.infer<typeof LeadAppointmentSchema>;
 
+export const LeadFollowUpSchema = z.object({
+    id: z.string(),
+    lead_id: z.string(),
+    creator_id: z.string(),
+    creator: z.object({
+        id: z.string(),
+        name: z.string().optional()
+    }).optional(),
+    title: z.string().min(1, "Title is required"),
+    description: z.string().optional(),
+    start_time: z.string(),
+    end_time: z.string(),
+    status: z.enum(["active", "closed"]),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+export type LeadFollowUp = z.infer<typeof LeadFollowUpSchema>;
+
 export const LeadSourceSchema = z.object({
     id: z.string(),
     name: z.string().min(1, "Source name is required"),
