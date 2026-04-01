@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLeads, useLeadCategories } from "@/hooks/useLeads";
 import { DateRangePicker, type DateField } from "@/components/date-range-picker";
-import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText, Phone } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText, Phone, MessageSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { AddAppointmentModal } from "./components/AddAppointmentModal";
 import { AddFollowUpModal } from "./components/AddFollowUpModal";
@@ -217,6 +223,7 @@ export default function LeadsPage() {
                                         <TableHead>Qualification</TableHead>
                                         <TableHead>Category</TableHead>
                                         <TableHead>Assigned To</TableHead>
+                                        <TableHead>Comments</TableHead>
                                         <TableHead>Created</TableHead>
                                         <TableHead className="w-[80px]"></TableHead>
                                     </TableRow>
@@ -256,6 +263,30 @@ export default function LeadsPage() {
                                             <TableCell>
                                                 {lead.assigned_to_user?.name ? (
                                                     <span className="text-sm">{lead.assigned_to_user.name}</span>
+                                                ) : (
+                                                    <span className="text-zinc-400">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="max-w-[250px]">
+                                                {lead.comments ? (
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <div className="flex items-start gap-2 cursor-default">
+                                                                    <MessageSquare className="h-4 w-4 mt-0.5 text-zinc-400 flex-shrink-0" />
+                                                                    <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 text-left">
+                                                                        {lead.comments}
+                                                                    </p>
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent 
+                                                                side="top" 
+                                                                className="max-w-[350px] p-3 text-sm bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-lg shadow-lg"
+                                                            >
+                                                                <p className="whitespace-pre-wrap break-words">{lead.comments}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
                                                 ) : (
                                                     <span className="text-zinc-400">-</span>
                                                 )}

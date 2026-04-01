@@ -224,6 +224,7 @@ export const LeadSchema = z.object({
         zip_code: z.string().optional(),
         country: z.string().optional(),
     }).optional(),
+    comments: z.string().optional(),
     created_at: z.string(),
     updated_at: z.string(),
 });
