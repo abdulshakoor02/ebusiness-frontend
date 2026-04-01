@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadSource, Country, Qualification } from "@/lib/schemas";
+import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadFollowUp, LeadSource, Country, Qualification } from "@/lib/schemas";
 import { toast } from "sonner";
 import { startOfDay, endOfDay } from "date-fns";
 
@@ -309,6 +309,80 @@ export function useCreateLeadAppointment() {
         },
         onError: (error: any) => {
             toast.error("Failed to schedule appointment", {
+                description: error?.response?.data?.error || "An unexpected error occurred",
+            });
+        }
+    });
+}
+
+// --- Follow-Ups ---
+
+export function useLeadFollowUps(lead_id: string) {
+    return useQuery({
+        queryKey: ["leads", lead_id, "follow-ups"],
+        queryFn: async () => {
+            const res = await apiClient.post<{ data: LeadFollowUp[]; total: number }>(`/leads/${lead_id}/follow-ups/list`, {
+                filters: {},
+                limit: 50,
+                offset: 0,
+            });
+            return res.data;
+        },
+        enabled: !!lead_id,
+    });
+}
+
+export function useCreateLeadFollowUp() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ lead_id, data }: { lead_id: string; data: Partial<LeadFollowUp> }) => {
+            const res = await apiClient.post(`/leads/${lead_id}/follow-ups`, data);
+            return res.data;
+        },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ["leads", variables.lead_id, "follow-ups"] });
+            toast.success("Follow-up created");
+        },
+        onError: (error: any) => {
+            toast.error("Failed to create follow-up", {
+                description: error?.response?.data?.error || "An unexpected error occurred",
+            });
+        }
+    });
+}
+
+export function useUpdateLeadFollowUp() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ lead_id, id, data }: { lead_id: string; id: string; data: Partial<LeadFollowUp> }) => {
+            const res = await apiClient.put(`/leads/${lead_id}/follow-ups/${id}`, data);
+            return res.data;
+        },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ["leads", variables.lead_id, "follow-ups"] });
+            toast.success("Follow-up updated");
+        },
+        onError: (error: any) => {
+            toast.error("Failed to update follow-up", {
+                description: error?.response?.data?.error || "An unexpected error occurred",
+            });
+        }
+    });
+}
+
+export function useDeleteLeadFollowUp() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ lead_id, id }: { lead_id: string; id: string }) => {
+            const res = await apiClient.delete(`/leads/${lead_id}/follow-ups/${id}`);
+            return res.data;
+        },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ["leads", variables.lead_id, "follow-ups"] });
+            toast.success("Follow-up deleted");
+        },
+        onError: (error: any) => {
+            toast.error("Failed to delete follow-up", {
                 description: error?.response?.data?.error || "An unexpected error occurred",
             });
         }

@@ -12,15 +12,16 @@ import {
     useLeadComments,
     useCreateLeadComment,
     useLeadAppointments,
+    useLeadFollowUps,
     useLeadSources,
     useCountries,
     useQualifications
 } from "@/hooks/useLeads";
 import { useLeadInvoices, useInvoiceReceipts } from "@/hooks/useInvoices";
 import { useUsers } from "@/hooks/useUsers";
-import { LeadSchema, Lead, Invoice, Receipt } from "@/lib/schemas";
+import { LeadSchema, Lead, Invoice, Receipt, LeadFollowUp } from "@/lib/schemas";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle, FileText, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, Loader2, Save, MessageSquarePlus, CalendarDays, Clock, CheckCircle2, XCircle, FileText, Pencil, Plus, Phone } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import Link from "next/link";
 import { AddAppointmentModal } from "../components/AddAppointmentModal";
+import { AddFollowUpModal } from "../components/AddFollowUpModal";
 import { CreateInvoiceModal } from "../components/CreateInvoiceModal";
 import { EditInvoiceModal } from "../components/EditInvoiceModal";
 import { CreateReceiptModal } from "../components/CreateReceiptModal";
@@ -96,6 +98,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const { data: usersData } = useUsers({ limit: 100 });
     const { data: commentsData, isLoading: isLoadingComments } = useLeadComments(leadId);
     const { data: appointmentsData, isLoading: isLoadingAppointments } = useLeadAppointments(leadId);
+    const { data: followUpsData, isLoading: isLoadingFollowUps } = useLeadFollowUps(leadId);
     const { data: invoices, isLoading: isLoadingInvoices } = useLeadInvoices(leadId);
     // Mutations
     const updateLead = useUpdateLead();
@@ -108,6 +111,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     const users = usersData?.data || [];
     const comments = commentsData?.data || [];
     const appointments = appointmentsData?.data || [];
+    const followUps = followUpsData?.data || [];
 
     const countryOptions = countries.map(c => ({ value: c.id, label: c.name }));
     const qualificationOptions = qualifications.map(q => ({ value: q.id, label: q.name }));
@@ -116,6 +120,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
     // State for Modals & Local Forms
     const [newComment, setNewComment] = useState("");
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+    const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
 
     // Invoice & Receipt Modals State
     const [isCreateInvoiceModalOpen, setIsCreateInvoiceModalOpen] = useState(false);
@@ -236,7 +241,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
         );
     }
 
-    if (isLoadingLead || isLoadingCategories || isLoadingSources || isLoadingCountries || isLoadingQualifications) {
+    if (isLoadingLead || isLoadingCategories || isLoadingSources || isLoadingCountries || isLoadingQualifications || isLoadingFollowUps) {
         return (
             <div className="flex justify-center items-center h-[60vh]">
                 <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
@@ -540,7 +545,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             </Form>
 
             <div className="space-y-4">
-                <Accordion type="multiple" className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg" defaultValue={["comments", "appointments"]}>
+                <Accordion type="multiple" className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg" defaultValue={["comments", "appointments", "follow-ups"]}>
 
                     {/* Comments Accordion */}
                     <AccordionItem value="comments" className="px-6">
@@ -653,6 +658,60 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                     ))}
                                 </div>
                             )}
+                        </AccordionContent></AccordionItem>
+
+                    {/* Follow-Ups Accordion */}
+                    <AccordionItem value="follow-ups" className="px-6 border-b-0">
+                        <AccordionTrigger className="text-lg font-semibold hover:no-underline py-6">
+                            <span className="flex items-center gap-2">
+                                <Phone className="h-5 w-5 text-zinc-500" />
+                                Follow-Ups
+                            </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4 pb-6">
+                            <div className="flex justify-end">
+                                <Button type="button" size="sm" onClick={() => setIsFollowUpModalOpen(true)}>
+                                    Add Follow Up
+                                </Button>
+                            </div>
+
+                            {isLoadingFollowUps ? (
+                                <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
+                            ) : followUps.length === 0 ? (
+                                <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                    No follow-ups scheduled.
+                                </p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {followUps.map((followUp) => (
+                                        <div key={followUp.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg gap-4">
+                                            <div className="flex items-start gap-4">
+                                                <div className="mt-1">
+                                                    {followUp.status === 'closed' ? (
+                                                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                                    ) : (
+                                                        <Phone className="h-5 w-5 text-orange-500" />
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">{followUp.title}</h4>
+                                                    <p className="text-sm text-zinc-500">
+                                                        {new Date(followUp.start_time).toLocaleString()} - {new Date(followUp.end_time).toLocaleTimeString()}
+                                                    </p>
+                                                    {followUp.description && (
+                                                        <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">{followUp.description}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant={followUp.status === 'closed' ? 'secondary' : 'default'}>
+                                                    {followUp.status}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </AccordionContent>
                     </AccordionItem>
 
@@ -706,6 +765,12 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                 leadId={leadId}
                 open={isAppointmentModalOpen}
                 onOpenChange={setIsAppointmentModalOpen}
+            />
+
+            <AddFollowUpModal
+                leadId={leadId}
+                open={isFollowUpModalOpen}
+                onOpenChange={setIsFollowUpModalOpen}
             />
 
             <CreateInvoiceModal
