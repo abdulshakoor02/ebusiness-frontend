@@ -5,6 +5,7 @@ import { LogOut, User, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { clearPermissions } from "@/hooks/useMyPermissions";
+import { ThemeToggle } from "./ThemeToggle";
 
 import {
   DropdownMenu,
@@ -29,7 +30,6 @@ export function Topbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  // Basic breadcrumb generation based on URL segments
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbItems = segments.map((segment, index) => {
     const isLast = index === segments.length - 1;
@@ -40,7 +40,7 @@ export function Topbar() {
   });
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md px-4 lg:px-6">
+    <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-border bg-background topbar-glass px-4 lg:px-6">
       <div className="flex items-center gap-4">
         <SidebarTrigger className="-ml-2" />
         <div className="hidden sm:block">
@@ -64,11 +64,12 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none" suppressHydrationWarning>
-            <Avatar className="h-8 w-8 cursor-pointer border border-zinc-200 dark:border-zinc-800 transition-opacity hover:opacity-80">
+            <Avatar className="h-8 w-8 cursor-pointer border border-border transition-opacity hover:opacity-80">
               <AvatarImage src="" />
-              <AvatarFallback className="bg-zinc-100 dark:bg-zinc-900 text-sm font-medium">
+              <AvatarFallback className="bg-muted text-sm font-medium">
                 {session?.user?.name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
@@ -76,7 +77,7 @@ export function Topbar() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="flex flex-col">
               <span>{session?.user?.name || "User"}</span>
-              <span className="text-xs text-zinc-500 font-normal">{session?.user?.email || "No email"}</span>
+              <span className="text-xs text-muted-foreground font-normal">{session?.user?.email || "No email"}</span>
               <span className="text-xs text-blue-500 font-medium mt-1 uppercase tracking-wider">{session?.user?.role || "GUEST"}</span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

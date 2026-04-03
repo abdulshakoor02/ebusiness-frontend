@@ -46,8 +46,8 @@ export function AppSidebar() {
     const allNavigation = [...staticNavigation, ...visibleNavigation];
 
     return (
-        <Sidebar className="border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-            <SidebarHeader className="!h-16 flex items-center justify-start px-3 py-0 border-b border-zinc-200 dark:border-zinc-800">
+        <Sidebar className="border-r border-border bg-background sidebar-glass">
+            <SidebarHeader className="!h-16 flex items-center justify-start px-3 py-0 border-b border-border">
                 <Link href="/dashboard" className="flex items-center w-full h-full transition-opacity hover:opacity-80">
                     <div className="bg-zinc-900 rounded-md px-3 py-1">
                         <Image src="/1.png" alt="ebusiness+" width={165} height={50} className="w-[165px] h-[45px] object-contain" />
@@ -56,7 +56,7 @@ export function AppSidebar() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel className="text-zinc-500 font-medium">Platform Management</SidebarGroupLabel>
+                    <SidebarGroupLabel className="text-muted-foreground font-medium">Platform Management</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {allNavigation.map((item) => {
@@ -67,7 +67,7 @@ export function AppSidebar() {
                                             asChild
                                             isActive={isActive}
                                             tooltip={item.name}
-                                            className="transition-colors text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+                                            className="transition-colors text-foreground/70 hover:text-foreground data-[active=true]:text-primary"
                                         >
                                             <Link href={item.href}>
                                                 <item.icon className="h-4 w-4" />

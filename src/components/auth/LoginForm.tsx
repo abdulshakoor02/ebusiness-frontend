@@ -70,15 +70,15 @@ export function LoginForm() {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-gray-300">Email Address</FormLabel>
+                            <FormLabel>Email Address</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder="name@company.com"
-                                    className="bg-zinc-900/50 border-zinc-800 text-white placeholder:text-zinc-500 focus-visible:ring-zinc-600 transition-all duration-300"
+                                    className="bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-ring transition-all duration-300"
                                     {...field}
                                 />
                             </FormControl>
-                            <FormMessage className="text-red-400" />
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
@@ -88,10 +88,10 @@ export function LoginForm() {
                     render={({ field }) => (
                         <FormItem>
                             <div className="flex items-center justify-between">
-                                <FormLabel className="text-gray-300">Password</FormLabel>
+                                <FormLabel>Password</FormLabel>
                                 <a
                                     href="#"
-                                    className="text-sm text-zinc-400 hover:text-white transition-colors"
+                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Forgot password?
                                 </a>
@@ -100,17 +100,17 @@ export function LoginForm() {
                                 <Input
                                     type="password"
                                     placeholder="••••••••"
-                                    className="bg-zinc-900/50 border-zinc-800 text-white placeholder:text-zinc-500 focus-visible:ring-zinc-600 transition-all duration-300"
+                                    className="bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-ring transition-all duration-300"
                                     {...field}
                                 />
                             </FormControl>
-                            <FormMessage className="text-red-400" />
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
                 <Button
                     type="submit"
-                    className="w-full bg-white text-black hover:bg-zinc-200 transition-colors"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     disabled={isLoading}
                 >
                     {isLoading ? (
