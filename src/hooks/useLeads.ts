@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadFollowUp, LeadSource, Country, Qualification } from "@/lib/schemas";
+import { Lead, LeadCategory, LeadComment, LeadAppointment, LeadFollowUp, LeadSource, Country, Qualification, ImportResult, ImportPreviewResponse, ImportPreviewMapping } from "@/lib/schemas";
 import { toast } from "sonner";
 import { startOfDay, endOfDay } from "date-fns";
 
@@ -240,6 +240,46 @@ export function useUpdateLead() {
                 description: error?.response?.data?.error || "An unexpected error occurred",
             });
         }
+    });
+}
+
+export function useImportLeadsPreview() {
+    return useMutation({
+        mutationFn: async ({ file }: { file: File }): Promise<ImportPreviewResponse> => {
+            const formData = new FormData();
+            formData.append("file", file);
+            const res = await apiClient.post<ImportPreviewResponse>("/leads/import/preview", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            return res.data;
+        },
+    });
+}
+
+export function useImportLeadsConfirm() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ 
+            session_id, 
+            assigned_to, 
+            mappings 
+        }: { 
+            session_id: string; 
+            assigned_to?: string; 
+            mappings: ImportPreviewMapping[] 
+        }): Promise<ImportResult> => {
+            const res = await apiClient.post<ImportResult>("/leads/import/confirm", {
+                session_id,
+                assigned_to,
+                mappings,
+            });
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["leads"] });
+            queryClient.invalidateQueries({ queryKey: ["lead-categories"] });
+            queryClient.invalidateQueries({ queryKey: ["lead-sources"] });
+        },
     });
 }
 

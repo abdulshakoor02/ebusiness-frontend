@@ -230,6 +230,55 @@ export const LeadSchema = z.object({
 });
 export type Lead = z.infer<typeof LeadSchema>;
 
+export interface ImportError {
+    row: number;
+    field: string;
+    value: string;
+    reason: string;
+}
+
+export interface ImportResult {
+    total_rows: number;
+    inserted: number;
+    skipped: number;
+    created_categories: string[];
+    created_sources: string[];
+    created_qualifications: string[];
+    errors: ImportError[];
+}
+
+export interface ImportPreviewMapping {
+    column_index: number;
+    header_name: string;
+    target_field: string;
+    confidence: number;
+}
+
+export interface ImportTargetField {
+    name: string;
+    label: string;
+    type: "string" | "reference";
+    reference_type?: "category" | "source" | "qualification" | "country";
+}
+
+export interface ImportReferenceOption {
+    id: string;
+    name: string;
+}
+
+export interface ImportPreviewResponse {
+    session_id: string;
+    expires_at: string;
+    headers: string[];
+    sample_rows: string[][];
+    total_rows: number;
+    suggested_mappings: ImportPreviewMapping[];
+    available_target_fields: ImportTargetField[];
+    existing_categories: ImportReferenceOption[];
+    existing_sources: ImportReferenceOption[];
+    existing_qualifications: ImportReferenceOption[];
+}
+
 // Invoice Module Types
 
 export const InvoiceItemSchema = z.object({
@@ -288,3 +337,6 @@ export const ProductSchema = z.object({
     updated_at: z.string(),
 });
 export type Product = z.infer<typeof ProductSchema>;
+
+// Lead Import Types
+

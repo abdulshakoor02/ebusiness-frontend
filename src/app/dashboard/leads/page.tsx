@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLeads, useLeadCategories } from "@/hooks/useLeads";
 import { DateRangePicker, type DateField } from "@/components/date-range-picker";
-import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText, Phone, MessageSquare } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Pencil, CalendarPlus, Loader2, ChevronLeft, ChevronRight, FileText, Phone, MessageSquare, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +42,7 @@ import {
 import { AddAppointmentModal } from "./components/AddAppointmentModal";
 import { AddFollowUpModal } from "./components/AddFollowUpModal";
 import { CreateInvoiceModal } from "./components/CreateInvoiceModal";
+import { ImportLeadsModal } from "./components/ImportLeadsModal";
 
 export default function LeadsPage() {
     const router = useRouter();
@@ -111,6 +112,9 @@ export default function LeadsPage() {
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const [invoiceLeadId, setInvoiceLeadId] = useState<string | null>(null);
 
+    // Import Modal State
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
     const leads = data?.data || [];
 
     const handleAddAppointment = (leadId: string) => {
@@ -139,11 +143,16 @@ export default function LeadsPage() {
                     <h2 className="text-2xl font-bold tracking-tight">Leads</h2>
                     <p className="text-zinc-500">Manage and track your pipeline of potential customers.</p>
                 </div>
-                <Button asChild>
-                    <Link href="/dashboard/leads/new">
-                        <Plus className="mr-2 h-4 w-4" /> Add Lead
-                    </Link>
-                </Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                        <Upload className="mr-2 h-4 w-4" /> Import
+                    </Button>
+                    <Button asChild>
+                        <Link href="/dashboard/leads/new">
+                            <Plus className="mr-2 h-4 w-4" /> Add Lead
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm">
@@ -207,9 +216,14 @@ export default function LeadsPage() {
                 ) : leads.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-48 text-zinc-500">
                         <p>No leads found in the pipeline.</p>
-                        <Button variant="link" asChild>
-                            <Link href="/dashboard/leads/new">Import or create the first one</Link>
-                        </Button>
+                        <div className="flex items-center gap-2 mt-2">
+                            <Button variant="outline" size="sm" onClick={() => setIsImportModalOpen(true)}>
+                                Import
+                            </Button>
+                            <Button variant="link" size="sm" asChild>
+                                <Link href="/dashboard/leads/new">Create the first one</Link>
+                            </Button>
+                        </div>
                     </div>
                 ) : (
                     <>
@@ -374,6 +388,11 @@ export default function LeadsPage() {
                 leadId={invoiceLeadId}
                 open={isInvoiceModalOpen}
                 onOpenChange={setIsInvoiceModalOpen}
+            />
+
+            <ImportLeadsModal
+                open={isImportModalOpen}
+                onOpenChange={setIsImportModalOpen}
             />
         </div>
     );
