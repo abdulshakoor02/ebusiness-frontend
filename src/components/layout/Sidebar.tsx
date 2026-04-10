@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Building2, Users, Shield, BookOpen, ScrollText, Network, FileKey, Package } from "lucide-react";
+import { LayoutDashboard, Building2, Users, Shield, BookOpen, ScrollText, Network, FileKey, Package, Bot } from "lucide-react";
 
 import {
     Sidebar,
@@ -32,6 +32,7 @@ const protectedNavigation = [
     { name: "Role Permissions", href: "/dashboard/access-management/role-permissions", icon: Shield, permission: "can_view-roles_permissions" },
     { name: "Permission Rules", href: "/dashboard/access-management/rules", icon: FileKey, permission: "can_create_tenants" },
     { name: "Company Info", href: "/dashboard/company-info", icon: Building2, permission: "can_update_user-tenants" },
+    { name: "AI Chat", href: "/dashboard/ai-chat", icon: Bot, permission: "can_chat_ai" },
 ];
 
 export function AppSidebar() {
