@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCreateLead, useCreateLeadComment, useLeadCategories, useLeadSources, useCountries, useQualifications } from "@/hooks/useLeads";
 import { useUsers } from "@/hooks/useUsers";
+import { usePermissions } from "@/context/PermissionsContext";
 import { LeadSchema, Lead } from "@/lib/schemas";
 import { z } from "zod";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -61,6 +62,7 @@ type NewLeadFormValues = z.infer<typeof newLeadSchema>;
 export default function NewLeadPage() {
     const router = useRouter();
     const { data: session } = useSession();
+    const { hasPermission } = usePermissions();
     const createLead = useCreateLead();
     const createComment = useCreateLeadComment();
     const { data: categoriesData, isLoading: isLoadingCategories } = useLeadCategories({ limit: 100 });
@@ -317,24 +319,26 @@ export default function NewLeadPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
-                                    control={form.control}
-                                    name="assigned_to"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Assigned To</FormLabel>
-                                            <Combobox
-                                                options={assignedToOptions}
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                                placeholder="Assign to user"
-                                                searchPlaceholder="Search users..."
-                                                emptyText="No users found"
-                                            />
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {!hasPermission("can_list_own_leads") && (
+                                    <FormField
+                                        control={form.control}
+                                        name="assigned_to"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Assigned To</FormLabel>
+                                                <Combobox
+                                                    options={assignedToOptions}
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                    placeholder="Assign to user"
+                                                    searchPlaceholder="Search users..."
+                                                    emptyText="No users found"
+                                                />
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
                             </div>
                         </CardContent>
                     </Card>

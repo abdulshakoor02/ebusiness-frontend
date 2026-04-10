@@ -4,9 +4,9 @@ import { useState, useCallback, useRef } from "react";
 import { useImportLeadsPreview, useImportLeadsConfirm } from "@/hooks/useLeads";
 import { useUsers } from "@/hooks/useUsers";
 import { usePermissions } from "@/context/PermissionsContext";
-import { 
-    ImportResult, 
-    ImportPreviewResponse, 
+import {
+    ImportResult,
+    ImportPreviewResponse,
     ImportPreviewMapping
 } from "@/lib/schemas";
 import { toast } from "sonner";
@@ -170,9 +170,9 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
     };
 
     const handleMappingChange = (columnIndex: number, newTargetField: string) => {
-        setEditedMappings(prev => 
-            prev.map(m => 
-                m.column_index === columnIndex 
+        setEditedMappings(prev =>
+            prev.map(m =>
+                m.column_index === columnIndex
                     ? { ...m, target_field: newTargetField === SKIP_FIELD_VALUE ? "" : newTargetField }
                     : m
             )
@@ -260,11 +260,10 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                 {phase === "upload" && (
                     <div className="space-y-4">
                         <div
-                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                                dragOver
+                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${dragOver
                                     ? "border-primary bg-primary/5"
                                     : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600"
-                            }`}
+                                }`}
                             onClick={() => fileInputRef.current?.click()}
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
@@ -391,10 +390,10 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                 <div className="space-y-2 pr-2">
                                     {editedMappings.map((mapping, index) => {
                                         const isLowConfidence = mapping.confidence < 0.8 && mapping.target_field !== "";
-                                        
+
                                         return (
-                                            <div 
-                                                key={`${mapping.column_index}-${index}`} 
+                                            <div
+                                                key={`${mapping.column_index}-${index}`}
                                                 className={`flex items-center gap-3 p-2 rounded-lg border ${isLowConfidence ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/10' : 'border-zinc-200 dark:border-zinc-700'}`}
                                             >
                                                 <div className="w-[120px] shrink-0">
@@ -402,9 +401,9 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                                         {mapping.header_name}
                                                     </p>
                                                 </div>
-                                                
+
                                                 <ArrowLeft className="h-4 w-4 text-zinc-400 shrink-0" />
-                                                
+
                                                 <Select
                                                     value={mapping.target_field || SKIP_FIELD_VALUE}
                                                     onValueChange={(v) => handleMappingChange(mapping.column_index, v)}
@@ -426,7 +425,7 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                
+
                                                 <div className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded ${getConfidenceBg(mapping.confidence)}`}>
                                                     {mapping.confidence >= 0.8 ? (
                                                         <CheckCircle2 className={`h-3 w-3 ${getConfidenceColor(mapping.confidence)}`} />
@@ -446,45 +445,45 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                             </div>
                         </div>
 
-                        {(previewData.existing_categories.length > 0 || 
-                          previewData.existing_sources.length > 0 || 
-                          previewData.existing_qualifications.length > 0) && (
-                            <div className="border rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900">
-                                <p className="text-xs text-zinc-500 mb-2">Existing Reference Data</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {previewData.existing_categories.slice(0, 5).map((cat) => (
-                                        <Badge key={`cat-${cat.id}`} variant="secondary" className="text-xs">
-                                            {cat.name}
-                                        </Badge>
-                                    ))}
-                                    {previewData.existing_categories.length > 5 && (
-                                        <Badge variant="outline" className="text-xs">
-                                            +{previewData.existing_categories.length - 5} more
-                                        </Badge>
-                                    )}
-                                    {previewData.existing_sources.slice(0, 5).map((src) => (
-                                        <Badge key={`src-${src.id}`} variant="outline" className="text-xs">
-                                            {src.name}
-                                        </Badge>
-                                    ))}
-                                    {previewData.existing_sources.length > 5 && (
-                                        <Badge variant="outline" className="text-xs">
-                                            +{previewData.existing_sources.length - 5} more
-                                        </Badge>
-                                    )}
-                                    {previewData.existing_qualifications.slice(0, 5).map((qual) => (
-                                        <Badge key={`qual-${qual.id}`} variant="outline" className="text-xs border-blue-200">
-                                            {qual.name}
-                                        </Badge>
-                                    ))}
-                                    {previewData.existing_qualifications.length > 5 && (
-                                        <Badge variant="outline" className="text-xs border-blue-200">
-                                            +{previewData.existing_qualifications.length - 5} more
-                                        </Badge>
-                                    )}
+                        {(previewData.existing_categories.length > 0 ||
+                            previewData.existing_sources.length > 0 ||
+                            previewData.existing_qualifications.length > 0) && (
+                                <div className="border rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900">
+                                    <p className="text-xs text-zinc-500 mb-2">Existing Reference Data</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {previewData.existing_categories.slice(0, 5).map((cat) => (
+                                            <Badge key={`cat-${cat.id}`} variant="secondary" className="text-xs">
+                                                {cat.name}
+                                            </Badge>
+                                        ))}
+                                        {previewData.existing_categories.length > 5 && (
+                                            <Badge variant="outline" className="text-xs">
+                                                +{previewData.existing_categories.length - 5} more
+                                            </Badge>
+                                        )}
+                                        {previewData.existing_sources.slice(0, 5).map((src) => (
+                                            <Badge key={`src-${src.id}`} variant="outline" className="text-xs">
+                                                {src.name}
+                                            </Badge>
+                                        ))}
+                                        {previewData.existing_sources.length > 5 && (
+                                            <Badge variant="outline" className="text-xs">
+                                                +{previewData.existing_sources.length - 5} more
+                                            </Badge>
+                                        )}
+                                        {previewData.existing_qualifications.slice(0, 5).map((qual) => (
+                                            <Badge key={`qual-${qual.id}`} variant="outline" className="text-xs border-blue-200">
+                                                {qual.name}
+                                            </Badge>
+                                        ))}
+                                        {previewData.existing_qualifications.length > 5 && (
+                                            <Badge variant="outline" className="text-xs border-blue-200">
+                                                +{previewData.existing_qualifications.length - 5} more
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
                         {isAdmin && (
                             <div className="space-y-2">
@@ -568,31 +567,31 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                     )}
                                 </div>
 
-                                {(result.created_categories.length > 0 ||
-                                    result.created_sources.length > 0) && (
-                                    <div className="space-y-2">
-                                        <p className="text-sm font-medium">Auto-created Items</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {result.created_categories.map((cat) => (
-                                                <Badge key={`cat-${cat}`} variant="secondary">
-                                                    {cat}
-                                                </Badge>
-                                            ))}
-                                            {result.created_sources.map((src) => (
-                                                <Badge key={`src-${src}`} variant="outline">
-                                                    {src}
-                                                </Badge>
-                                            ))}
+                                {((result.created_categories?.length || 0) > 0 ||
+                                    (result.created_sources?.length || 0) > 0) && (
+                                        <div className="space-y-2">
+                                            <p className="text-sm font-medium">Auto-created Items</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {result.created_categories?.map((cat) => (
+                                                    <Badge key={`cat-${cat}`} variant="secondary">
+                                                        {cat}
+                                                    </Badge>
+                                                ))}
+                                                {result.created_sources?.map((src) => (
+                                                    <Badge key={`src-${src}`} variant="outline">
+                                                        {src}
+                                                    </Badge>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                {result.errors.length > 0 && (
+                                {(result.errors?.length || 0) > 0 && (
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-medium">Errors</p>
                                             <Badge variant="destructive">
-                                                {result.errors.length}
+                                                {result.errors?.length || 0}
                                             </Badge>
                                         </div>
                                         <div className="max-h-[200px] overflow-auto rounded-md border">
@@ -606,7 +605,7 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
-                                                    {result.errors.map((err, i) => (
+                                                    {result.errors?.map((err, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell className="text-xs">
                                                                 {err.row}
