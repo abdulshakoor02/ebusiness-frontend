@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
     Building2,
     Users,
@@ -13,11 +14,16 @@ import {
     Calendar,
     CheckCircle2,
     Clock,
-    PhoneCall
+    PhoneCall,
+    ChevronLeft,
+    ChevronRight,
+    Loader2
 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Legend } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { usePermissions } from "@/context/PermissionsContext";
+import { useMonthlySummary } from "@/hooks/useCharts";
 
 // Dummy Data for Super Admin (SaaS View)
 const superAdminChartData = [
@@ -37,17 +43,6 @@ const superAdminRecentActivity = [
     { id: 4, type: "permission_changed", message: "Manager role updated", time: "2 days ago", status: "warning" },
 ];
 
-// Dummy Data for Tenant/CRM View
-const crmPipelineData = [
-    { month: "Jan", newLeads: 45, conversions: 12 },
-    { month: "Feb", newLeads: 52, conversions: 15 },
-    { month: "Mar", newLeads: 48, conversions: 18 },
-    { month: "Apr", newLeads: 70, conversions: 25 },
-    { month: "May", newLeads: 65, conversions: 30 },
-    { month: "Jun", newLeads: 85, conversions: 42 },
-    { month: "Jul", newLeads: 90, conversions: 50 },
-];
-
 const crmRecentActivity = [
     { id: 1, type: "lead_assigned", message: "New lead 'John Doe' assigned to you", time: "10 mins ago" },
     { id: 2, type: "status_changed", message: "Lead 'Acme Corp' converted to Active Client", time: "1 hour ago" },
@@ -64,10 +59,45 @@ const leadsBySource = [
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#6366f1'];
 
+const MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+
 export default function DashboardOverview() {
     // Determine the current user's role 
     const { role } = usePermissions();
     const isSuperAdmin = role === "superadmin";
+
+    const now = new Date();
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+
+    const { data: monthlyData, isLoading: isMonthlyLoading } = useMonthlySummary(selectedMonth, selectedYear);
+
+    const chartData = (monthlyData?.data ?? []).map((d) => ({
+        day: new Date(d.date).getDate(),
+        appointments_booked: d.appointments_booked,
+        comments_added: d.comments_added,
+    }));
+
+    const goToPrevMonth = () => {
+        if (selectedMonth === 1) {
+            setSelectedMonth(12);
+            setSelectedYear((y) => y - 1);
+        } else {
+            setSelectedMonth((m) => m - 1);
+        }
+    };
+
+    const goToNextMonth = () => {
+        if (selectedMonth === 12) {
+            setSelectedMonth(1);
+            setSelectedYear((y) => y + 1);
+        } else {
+            setSelectedMonth((m) => m + 1);
+        }
+    };
 
     // Sub-component for Super Admin View
     const renderSuperAdminDash = () => (
@@ -309,72 +339,96 @@ export default function DashboardOverview() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-                {/* Main CRM Chart */}
+                {/* Monthly Activity Tracker */}
                 <Card className="col-span-4 card-glass shadow-sm transition-all hover:shadow-md">
                     <CardHeader>
-                        <CardTitle>Lead Generation & Conversion Growth</CardTitle>
-                        <CardDescription>
-                            Comparing new leads acquired with successfully converted clients.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pl-0">
-                        <div className="h-[350px] w-full pr-6 pt-4">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={crmPipelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                        </linearGradient>
-                                        <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis
-                                        dataKey="month"
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        padding={{ left: 20, right: 20 }}
-                                    />
-                                    <YAxis
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        width={40}
-                                    />
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" opacity={0.2} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
-                                        itemStyle={{ color: 'hsl(var(--foreground))' }}
-                                        labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="newLeads"
-                                        name="New Leads"
-                                        stroke="#3b82f6"
-                                        strokeWidth={3}
-                                        fillOpacity={1}
-                                        fill="url(#colorLeads)"
-                                        animationDuration={1500}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="conversions"
-                                        name="Conversions"
-                                        stroke="#10b981"
-                                        strokeWidth={3}
-                                        fillOpacity={1}
-                                        fill="url(#colorConv)"
-                                        animationDuration={1500}
-                                    />
-                                    <Legend verticalAlign="top" height={36} iconType="circle" />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                        <div className="flex items-center justify-between">
+                              <div>
+                                  <CardTitle>Monthly Activity Tracker</CardTitle>
+                                  <CardDescription>
+                                      Daily appointments and comments for the month.
+                                  </CardDescription>
+                              </div>
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={goToPrevMonth}>
+                                    <ChevronLeft className="h-4 w-4" />
+                                  </Button>
+                                  <span className="text-sm font-medium min-w-[140px] text-center">
+                                      {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+                                  </span>
+                                  <Button variant="outline" size="icon" className="h-7 w-7" onClick={goToNextMonth}>
+                                      <ChevronRight className="h-4 w-4" />
+                                  </Button>
+                              </div>
+                          </div>
+                      </CardHeader>
+                      <CardContent className="pl-0">
+                          <div className="h-[350px] w-full pr-6 pt-4">
+                              {isMonthlyLoading ? (
+                                  <div className="flex items-center justify-center h-full">
+                                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                  </div>
+                              ) : (
+                                  <ResponsiveContainer width="100%" height="100%">
+                                      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                        <defs>
+                                              <linearGradient id="colorAppointments" x1="0" y1="0" x2="0" y2="1">
+                                                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                              </linearGradient>
+                                              <linearGradient id="colorComments" x1="0" y1="0" x2="0" y2="1">
+                                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                              </linearGradient>
+                                        </defs>
+                                          <XAxis
+                                              dataKey="day"
+                                              stroke="#888888"
+                                              fontSize={12}
+                                              tickLine={false}
+                                              axisLine={false}
+                                              padding={{ left: 10, right: 10 }}
+                                              label={{ value: "Day", position: "insideBottomRight", offset: -5, fontSize: 12, fill: "#888888" }}
+                                        />
+                                        <YAxis
+                                              stroke="#888888"
+                                              fontSize={12}
+                                              tickLine={false}
+                                              axisLine={false}
+                                              width={40}
+                                              allowDecimals={false}
+                                        />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" opacity={0.2} />
+                                        <Tooltip
+                                              contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                                              itemStyle={{ color: 'hsl(var(--foreground))' }}
+                                              labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                                              labelFormatter={(label) => `Day ${label}`}
+                                          />
+                                          <Area
+                                              type="monotone"
+                                              dataKey="appointments_booked"
+                                            name="Appointments"
+                                            stroke="#3b82f6"
+                                            strokeWidth={3}
+                                            fillOpacity={1}
+                                            fill="url(#colorAppointments)"
+                                            animationDuration={1500}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="comments_added"
+                                            name="Comments"
+                                            stroke="#10b981"
+                                            strokeWidth={3}
+                                            fillOpacity={1}
+                                            fill="url(#colorComments)"
+                                            animationDuration={1500}
+                                        />
+                                        <Legend verticalAlign="top" height={36} iconType="circle" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
