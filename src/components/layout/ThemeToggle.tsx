@@ -15,9 +15,20 @@ import {
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isGlass, setIsGlass] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    setIsGlass(document.documentElement.classList.contains("glass"));
+  }, []);
+
+  useEffect(() => {
+    const handleGlassChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ enabled: boolean }>;
+      setIsGlass(customEvent.detail.enabled);
+    };
+    window.addEventListener("glassModeChange", handleGlassChange);
+    return () => window.removeEventListener("glassModeChange", handleGlassChange);
   }, []);
 
   if (!mounted) {
@@ -29,7 +40,6 @@ export function ThemeToggle() {
   }
 
   const isDark = theme === "dark";
-  const isGlass = localStorage.getItem("glass-mode") === "true";
 
   const toggleDarkMode = () => {
     setTheme(isDark ? "light" : "dark");

@@ -18,29 +18,30 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full bg-background text-foreground flex select-none">
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 bg-card border-r border-border relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-background to-background pointer-events-none" />
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[0%] right-[0%] w-[80%] h-[40%] rounded-full bg-blue-500/5 blur-[150px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-muted/30 via-background to-background pointer-events-none" />
+        <div className="absolute -top-[25%] -left-[15%] w-[60%] h-[60%] rounded-full bg-blue-500/[0.06] blur-[160px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[70%] h-[50%] rounded-full bg-indigo-500/[0.05] blur-[180px] pointer-events-none" />
+        <div className="absolute top-[40%] left-[30%] w-[40%] h-[40%] rounded-full bg-emerald-500/[0.03] blur-[140px] pointer-events-none" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="z-10 flex w-full justify-center mt-8 mb-4"
         >
           <Image src="/1.png" alt="ebusiness+" width={360} height={99} className="rounded-2xl w-[360px] h-[99px] object-contain" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="z-10 max-w-md"
         >
-          <h1 className="text-5xl font-medium tracking-tight mb-6 leading-tight">
+          <h1 className="text-5xl font-medium tracking-tight mb-6 leading-[1.1]">
             Manage your entire enterprise in one cohesive operating system.
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-lg leading-relaxed">
             Ebusiness provides an elegant, scalable, and powerful platform to manage
             tenants, users, and resources globally.
           </p>
@@ -49,7 +50,7 @@ export default function LoginPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
           className="z-10 text-muted-foreground text-sm"
         >
           &copy; {new Date().getFullYear()} Ebusiness. All rights reserved.
@@ -61,7 +62,7 @@ export default function LoginPage() {
           <ThemeToggle />
         </div>
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-sm"

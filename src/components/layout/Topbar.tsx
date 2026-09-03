@@ -40,9 +40,9 @@ export function Topbar() {
   });
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-border bg-background topbar-glass px-4 lg:px-6">
+    <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-border bg-background topbar-glass px-4 lg:px-6 transition-all duration-300">
       <div className="flex items-center gap-4">
-        <SidebarTrigger className="-ml-2" />
+        <SidebarTrigger className="-ml-2 transition-opacity hover:opacity-70 duration-200" />
         <div className="hidden sm:block">
           <Breadcrumb>
             <BreadcrumbList>
@@ -52,7 +52,7 @@ export function Topbar() {
                     {item.isLast ? (
                       <BreadcrumbPage>{item.label}</BreadcrumbPage>
                     ) : (
-                      <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                      <BreadcrumbLink href={item.href} className="transition-colors hover:text-foreground duration-200">{item.label}</BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
                   {!item.isLast && <BreadcrumbSeparator />}
@@ -63,11 +63,11 @@ export function Topbar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none" suppressHydrationWarning>
-            <Avatar className="h-8 w-8 cursor-pointer border border-border transition-opacity hover:opacity-80">
+            <Avatar className="h-8 w-8 cursor-pointer border border-border transition-all hover:opacity-80 hover:scale-105 duration-200">
               <AvatarImage src="" />
               <AvatarFallback className="bg-muted text-sm font-medium">
                 {session?.user?.name?.charAt(0) || "U"}

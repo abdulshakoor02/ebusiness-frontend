@@ -101,17 +101,19 @@ export default function DashboardOverview() {
 
     // Sub-component for Super Admin View
     const renderSuperAdminDash = () => (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* KPI Cards */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                            <CreditCard className="h-4 w-4 text-blue-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">$45,231.89</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">$45,231.89</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             +20.1% from last month
                         </p>
@@ -119,13 +121,15 @@ export default function DashboardOverview() {
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Active Tenants</CardTitle>
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                            <Building2 className="h-4 w-4 text-indigo-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+2350</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">+2350</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             +180 new today
                         </p>
@@ -133,13 +137,15 @@ export default function DashboardOverview() {
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <Users className="h-4 w-4 text-emerald-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+12,234</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">+12,234</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             +19% from last month
                         </p>
@@ -147,25 +153,27 @@ export default function DashboardOverview() {
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Platform Health</CardTitle>
-                        <Activity className="h-4 w-4 text-muted-foreground" />
+                        <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                            <Activity className="h-4 w-4 text-purple-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">99.9%</div>
-                        <p className="text-xs text-muted-foreground font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">99.9%</div>
+                        <p className="text-xs text-muted-foreground font-medium flex items-center mt-1.5">
                             +0.1% from last week
                         </p>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
                 {/* Main Chart */}
                 <Card className="col-span-4 card-glass shadow-sm transition-all hover:shadow-md">
-                    <CardHeader>
-                        <CardTitle>Revenue Overview</CardTitle>
-                        <CardDescription>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-semibold">Revenue Overview</CardTitle>
+                        <CardDescription className="text-sm">
                             Platform revenue growth over the past 7 months.
                         </CardDescription>
                     </CardHeader>
@@ -219,24 +227,24 @@ export default function DashboardOverview() {
 
                 {/* Recent Activity */}
                 <Card className="col-span-3 card-glass shadow-sm transition-all hover:shadow-md">
-                    <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                        <CardDescription>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-semibold">Recent Activity</CardTitle>
+                        <CardDescription className="text-sm">
                             Latest actions performed across the platform.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-8">
+                        <div className="space-y-5">
                             {superAdminRecentActivity.map((activity) => (
                                 <div key={activity.id} className="flex items-start group">
-                                    <div className="mt-1 bg-muted rounded-full p-2 border border-border group-hover:bg-primary/10 transition-colors">
+                                    <div className="mt-0.5 h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                                         {activity.type === 'tenant_created' && <Building2 className="h-4 w-4 text-blue-500" />}
                                         {activity.type === 'user_added' && <Users className="h-4 w-4 text-green-500" />}
                                         {activity.type === 'system' && <Activity className="h-4 w-4 text-muted-foreground" />}
                                         {activity.type === 'permission_changed' && <Shield className="h-4 w-4 text-amber-500" />}
                                     </div>
-                                    <div className="ml-4 space-y-1">
-                                        <p className="text-sm font-medium leading-none">{activity.message}</p>
+                                    <div className="ml-3 space-y-1 flex-1">
+                                        <p className="text-sm font-medium leading-tight">{activity.message}</p>
                                         <p className="text-xs text-muted-foreground">
                                             {activity.time}
                                         </p>
@@ -252,17 +260,19 @@ export default function DashboardOverview() {
 
     // Sub-component for CRM/Tenant View
     const renderCrmDash = () => (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* KPI Cards */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Total Pipeline Leads</CardTitle>
-                        <Target className="h-4 w-4 text-blue-500" />
+                        <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                            <Target className="h-4 w-4 text-blue-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1,245</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">1,245</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             +12% vs last month
                         </p>
@@ -270,13 +280,15 @@ export default function DashboardOverview() {
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Active Clients</CardTitle>
-                        <Briefcase className="h-4 w-4 text-indigo-500" />
+                        <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                            <Briefcase className="h-4 w-4 text-indigo-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">342</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">342</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             15 conversions this week
                         </p>
@@ -284,13 +296,15 @@ export default function DashboardOverview() {
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
-                        <CreditCard className="h-4 w-4 text-emerald-500" />
+                        <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <CreditCard className="h-4 w-4 text-emerald-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">$18,402</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">$18,402</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             +5% vs last month
                         </p>
@@ -298,39 +312,45 @@ export default function DashboardOverview() {
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Pending Follow-ups</CardTitle>
-                        <Calendar className="h-4 w-4 text-orange-500" />
+                        <div className="h-8 w-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                            <Calendar className="h-4 w-4 text-orange-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">28</div>
-                        <p className="text-xs text-red-400 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">28</div>
+                        <p className="text-xs text-red-400 font-medium flex items-center mt-1.5">
                             <ArrowDownRight className="h-3 w-3 mr-1" />
                             5 overdue tasks
                         </p>
                     </CardContent>
                 </Card>
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Today's Appointments</CardTitle>
-                        <Clock className="h-4 w-4 text-purple-500" />
+                        <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                            <Clock className="h-4 w-4 text-purple-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">12</div>
-                        <p className="text-xs text-muted-foreground font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">12</div>
+                        <p className="text-xs text-muted-foreground font-medium flex items-center mt-1.5">
                             3 completed today
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md hover:scale-[1.01] duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Today's Follow-ups</CardTitle>
-                        <PhoneCall className="h-4 w-4 text-pink-500" />
+                        <div className="h-8 w-8 rounded-lg bg-pink-500/10 flex items-center justify-center">
+                            <PhoneCall className="h-4 w-4 text-pink-500" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">8</div>
-                        <p className="text-xs text-green-500 font-medium flex items-center mt-1">
+                        <div className="text-2xl font-bold tracking-tight">8</div>
+                        <p className="text-xs text-green-500 font-medium flex items-center mt-1.5">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             +2 since morning
                         </p>
@@ -338,14 +358,14 @@ export default function DashboardOverview() {
                 </Card>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
                 {/* Monthly Activity Tracker */}
                 <Card className="col-span-4 card-glass shadow-sm transition-all hover:shadow-md">
-                    <CardHeader>
+                    <CardHeader className="pb-4">
                         <div className="flex items-center justify-between">
                               <div>
-                                  <CardTitle>Monthly Activity Tracker</CardTitle>
-                                  <CardDescription>
+                                  <CardTitle className="text-base font-semibold">Monthly Activity Tracker</CardTitle>
+                                  <CardDescription className="text-sm">
                                       Daily appointments and comments for the month.
                                   </CardDescription>
                               </div>
@@ -435,9 +455,9 @@ export default function DashboardOverview() {
 
                 {/* Lead Sources Pie Chart */}
                 <Card className="col-span-3 card-glass shadow-sm transition-all hover:shadow-md flex flex-col">
-                    <CardHeader>
-                        <CardTitle>Leads by Source</CardTitle>
-                        <CardDescription>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-semibold">Leads by Source</CardTitle>
+                        <CardDescription className="text-sm">
                             Distribution of incoming leads.
                         </CardDescription>
                     </CardHeader>
@@ -472,26 +492,26 @@ export default function DashboardOverview() {
             </div>
 
             {/* CRM Recent Activity */}
-            <div className="grid gap-6 lg:grid-cols-1">
+            <div className="grid gap-5 lg:grid-cols-1">
                 <Card className="card-glass shadow-sm transition-all hover:shadow-md">
-                    <CardHeader>
-                        <CardTitle>Recent CRM Activity</CardTitle>
-                        <CardDescription>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-semibold">Recent CRM Activity</CardTitle>
+                        <CardDescription className="text-sm">
                             Your latest updates, lead assignments, and tasks.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {crmRecentActivity.map((activity) => (
                                 <div key={activity.id} className="flex items-center group">
-                                    <div className="flex bg-muted rounded-full p-3 border border-border group-hover:bg-primary/10 transition-colors">
+                                    <div className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                                         {activity.type === 'lead_assigned' && <Target className="h-4 w-4 text-blue-500" />}
                                         {activity.type === 'status_changed' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
                                         {activity.type === 'follow_up' && <Calendar className="h-4 w-4 text-orange-500" />}
                                         {activity.type === 'receipt_generated' && <CreditCard className="h-4 w-4 text-indigo-500" />}
                                     </div>
-                                    <div className="ml-4 flex-1 space-y-1">
-                                        <p className="text-sm font-medium leading-none">{activity.message}</p>
+                                    <div className="ml-3 flex-1 space-y-1">
+                                        <p className="text-sm font-medium leading-tight">{activity.message}</p>
                                         <p className="text-xs text-muted-foreground">
                                             {activity.time}
                                         </p>
@@ -506,10 +526,10 @@ export default function DashboardOverview() {
     );
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
-                <p className="text-muted-foreground mt-2">
+                <p className="text-muted-foreground mt-1.5">
                     {isSuperAdmin
                         ? "Your platform's general metrics and recent performance."
                         : "Your active leads, upcoming tasks, and conversion metrics."}
