@@ -125,102 +125,82 @@
   }
 }
 
+/* ============================================
+   GLASSMORPHISM SYSTEM
+   Activated when <html> has .glass class
+   ============================================ */
 .glass {
-  --glass-bg: oklch(1 0 0 / 0.1);
-  --glass-border: oklch(1 0 0 / 0.2);
-  --glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 0.1);
+  --glass-bg: oklch(1 0 0 / 0.65);
+  --glass-bg-subtle: oklch(1 0 0 / 0.45);
+  --glass-border: oklch(1 0 0 / 0.35);
+  --glass-border-subtle: oklch(1 0 0 / 0.2);
+  --glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 0.08);
+  --glass-highlight: oklch(1 0 0 / 0.15);
 }
 
 .glass.dark {
-  --glass-bg: oklch(0.2 0 0 / 0.3);
-  --glass-border: oklch(1 0 0 / 0.1);
-  --glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 0.3);
+  --glass-bg: oklch(0.2 0 0 / 0.55);
+  --glass-bg-subtle: oklch(0.2 0 0 / 0.4);
+  --glass-border: oklch(1 0 0 / 0.15);
+  --glass-border-subtle: oklch(1 0 0 / 0.08);
+  --glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 0.4);
+  --glass-highlight: oklch(1 0 0 / 0.05);
 }
 
+/* Generic glass element */
 .glass .glass-element {
-  @apply backdrop-blur-lg border;
+  @apply backdrop-blur-xl border;
   background: var(--glass-bg);
   border-color: var(--glass-border);
   box-shadow: var(--glass-shadow);
 }
 
+/* Sidebar glass */
 .glass .sidebar-glass {
-  @apply backdrop-blur-xl border-r;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(1 0 0 / 0.05) 100%);
+  @apply backdrop-blur-2xl border-r;
+  background: linear-gradient(
+    135deg,
+    var(--glass-bg) 0%,
+    var(--glass-bg-subtle) 100%
+  );
   border-color: var(--glass-border);
+  box-shadow: inset -1px 0 0 var(--glass-highlight);
 }
 
-.glass.dark .sidebar-glass {
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(0.1 0 0 / 0.1) 100%);
-}
-
+/* Topbar glass */
 .glass .topbar-glass {
-  @apply backdrop-blur-xl border-b;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(1 0 0 / 0.03) 100%);
+  @apply backdrop-blur-2xl border-b;
+  background: linear-gradient(
+    180deg,
+    var(--glass-bg) 0%,
+    var(--glass-bg-subtle) 100%
+  );
   border-color: var(--glass-border);
+  box-shadow: inset 0 -1px 0 var(--glass-highlight);
 }
 
-.glass.dark .topbar-glass {
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(0.1 0 0 / 0.08) 100%);
-}
-
+/* Card glass */
 .glass .card-glass {
-  @apply backdrop-blur-md border;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(1 0 0 / 0.02) 100%);
+  @apply backdrop-blur-xl border;
+  background: linear-gradient(
+    135deg,
+    var(--glass-bg) 0%,
+    var(--glass-bg-subtle) 100%
+  );
   border-color: var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
 }
 
-.glass.dark .card-glass {
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(0.15 0 0 / 0.15) 100%);
-}
-
-.glass {
-  --glass-bg: oklch(1 0 0 / 0.1);
-  --glass-border: oklch(1 0 0 / 0.2);
-  --glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 0.1);
-}
-
-.glass.dark {
-  --glass-bg: oklch(0.2 0 0 / 0.3);
-  --glass-border: oklch(1 0 0 / 0.1);
-  --glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 0.3);
-}
-
-.glass .glass-element {
-  @apply backdrop-blur-lg border;
-  background: var(--glass-bg);
-  border-color: var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-.glass .sidebar-glass {
-  @apply backdrop-blur-xl border-r;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(1 0 0 / 0.05) 100%);
-  border-color: var(--glass-border);
-}
-
-.glass.dark .sidebar-glass {
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(0.1 0 0 / 0.1) 100%);
-}
-
-.glass .topbar-glass {
-  @apply backdrop-blur-xl border-b;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(1 0 0 / 0.03) 100%);
-  border-color: var(--glass-border);
-}
-
-.glass.dark .topbar-glass {
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(0.1 0 0 / 0.08) 100%);
-}
-
-.glass .card-glass {
-  @apply backdrop-blur-md border;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(1 0 0 / 0.02) 100%);
-  border-color: var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-.glass.dark .card-glass {
-  background: linear-gradient(135deg, var(--glass-bg) 0%, oklch(0.15 0 0 / 0.15) 100%);
+/* Smooth transition when toggling glass mode */
+.sidebar-glass,
+.topbar-glass,
+.card-glass,
+.glass-element {
+  transition:
+    background 300ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    backdrop-filter 300ms ease;
 }

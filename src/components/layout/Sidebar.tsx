@@ -48,16 +48,16 @@ export function AppSidebar() {
 
     return (
         <Sidebar className="border-r border-border bg-background sidebar-glass">
-            <SidebarHeader className="!h-16 flex items-center justify-start px-3 py-0 border-b border-border">
-                <Link href="/dashboard" className="flex items-center w-full h-full transition-opacity hover:opacity-80">
-                    <div className="bg-zinc-900 rounded-md px-3 py-1">
+            <SidebarHeader className="!h-16 flex items-center justify-start px-4 py-0 border-b border-border">
+                <Link href="/dashboard" className="flex items-center w-full h-full transition-opacity hover:opacity-80 duration-200">
+                    <div className="bg-zinc-900 rounded-lg px-3 py-1.5">
                         <Image src="/1.png" alt="ebusiness+" width={165} height={50} className="w-[165px] h-[45px] object-contain" />
                     </div>
                 </Link>
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="py-2">
                 <SidebarGroup>
-                    <SidebarGroupLabel className="text-muted-foreground font-medium">Platform Management</SidebarGroupLabel>
+                    <SidebarGroupLabel className="text-muted-foreground font-medium text-xs uppercase tracking-wider px-4 mb-2">Platform Management</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {allNavigation.map((item) => {
@@ -68,10 +68,10 @@ export function AppSidebar() {
                                             asChild
                                             isActive={isActive}
                                             tooltip={item.name}
-                                            className="transition-colors text-foreground/70 hover:text-foreground data-[active=true]:text-primary"
+                                            className="transition-all duration-200 text-foreground/70 hover:text-foreground hover:bg-sidebar-accent/50 data-[active=true]:text-primary data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium mx-2 rounded-lg"
                                         >
                                             <Link href={item.href}>
-                                                <item.icon className="h-4 w-4" />
+                                                <item.icon className="h-4 w-4 transition-transform duration-200" />
                                                 <span>{item.name}</span>
                                             </Link>
                                         </SidebarMenuButton>
