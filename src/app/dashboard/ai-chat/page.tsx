@@ -140,7 +140,7 @@ export default function AIChatPage() {
                                         <Bot className="h-5 w-5 text-primary" />
                                     </div>
                                 )}
-                                <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${
+                                <div data-glass="chat-message" data-role={msg.role} className={`max-w-[80%] rounded-2xl px-5 py-3 ${
                                     msg.role === "user" 
                                         ? "bg-primary text-primary-foreground rounded-br-none" 
                                         : "bg-muted text-foreground rounded-bl-none border border-border/50"
@@ -159,7 +159,7 @@ export default function AIChatPage() {
                                 <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                                     <Bot className="h-5 w-5 text-primary" />
                                 </div>
-                                <div className="max-w-[80%] rounded-2xl px-5 py-4 bg-muted text-foreground rounded-bl-none border border-border/50 flex items-center gap-2">
+                                <div data-glass="chat-message" data-role="assistant" className="max-w-[80%] rounded-2xl px-5 py-4 bg-muted text-foreground rounded-bl-none border border-border/50 flex items-center gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
                                     <span className="text-sm text-muted-foreground">Thinking...</span>
                                 </div>
@@ -169,7 +169,7 @@ export default function AIChatPage() {
                     </div>
                 )}
                 
-                <div className="p-4 bg-background border-t border-border">
+                <div data-glass="toolbar" className="p-4 bg-background border-t border-border">
                     <form onSubmit={handleSubmit} className="flex gap-3 max-w-4xl mx-auto relative">
                         <Input
                             placeholder="Ask anything about your data..."

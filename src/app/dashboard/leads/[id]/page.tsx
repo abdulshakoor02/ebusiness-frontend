@@ -549,7 +549,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
             </Form>
 
             <div className="space-y-4">
-                <Accordion type="multiple" className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg" defaultValue={["comments", "appointments", "follow-ups"]}>
+                <Accordion data-glass="panel" type="multiple" className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg" defaultValue={["comments", "appointments", "follow-ups"]}>
 
                     {/* Comments Accordion */}
                     <AccordionItem value="comments" className="px-6">
@@ -583,13 +583,13 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                                 {isLoadingComments ? (
                                     <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
                                 ) : comments.length === 0 ? (
-                                    <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                    <p data-glass="inset" className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
                                         No comments yet.
                                     </p>
                                 ) : (
                                     <div className="space-y-4">
                                         {comments.map((comment) => (
-                                            <div key={comment.id} className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                                            <div key={comment.id} data-glass="inset" className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <span className="text-xs font-medium text-zinc-500">
                                                         {comment.author?.name || `User ${comment.author_id?.slice(-4) || 'Unknown'}`}
@@ -623,13 +623,13 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                             {isLoadingAppointments ? (
                                 <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
                             ) : appointments.length === 0 ? (
-                                <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                <p data-glass="inset" className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
                                     No appointments scheduled.
                                 </p>
                             ) : (
                                 <div className="space-y-3">
                                     {appointments.map((apt) => (
-                                        <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg gap-4">
+                                        <div key={apt.id} data-glass="inset" className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg gap-4">
                                             <div className="flex items-start gap-4">
                                                 <div className="mt-1">
                                                     {apt.status === 'completed' ? (
@@ -682,13 +682,13 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                             {isLoadingFollowUps ? (
                                 <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
                             ) : followUps.length === 0 ? (
-                                <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                <p data-glass="inset" className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
                                     No follow-ups scheduled.
                                 </p>
                             ) : (
                                 <div className="space-y-3">
                                     {followUps.map((followUp) => (
-                                        <div key={followUp.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg gap-4">
+                                        <div key={followUp.id} data-glass="inset" className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg gap-4">
                                             <div className="flex items-start gap-4">
                                                 <div className="mt-1">
                                                     {followUp.status === 'closed' ? (
@@ -738,7 +738,7 @@ export default function EditLeadPage({ params }: { params: Promise<{ id: string 
                             {isLoadingInvoices ? (
                                 <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-zinc-400" /></div>
                             ) : !invoices || invoices.length === 0 ? (
-                                <p className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
+                                <p data-glass="inset" className="text-sm text-zinc-500 italic py-4 text-center bg-zinc-50 dark:bg-zinc-900 rounded-md border border-dashed border-zinc-200 dark:border-zinc-800">
                                     No invoices created yet.
                                 </p>
                             ) : (

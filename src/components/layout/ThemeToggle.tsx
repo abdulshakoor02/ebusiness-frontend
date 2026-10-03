@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isGlass, setIsGlass] = useState(false);
 
@@ -39,7 +39,7 @@ export function ThemeToggle() {
     );
   }
 
-  const isDark = theme === "dark";
+  const isDark = resolvedTheme === "dark";
 
   const toggleDarkMode = () => {
     setTheme(isDark ? "light" : "dark");
@@ -66,10 +66,17 @@ export function ThemeToggle() {
           {isDark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
           <span>{isDark ? "Light" : "Dark"} Mode</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={toggleGlassMode}>
-          <Sparkles className={`mr-2 h-4 w-4 ${isGlass ? "text-yellow-500" : ""}`} />
-          <span>Glass Mode {isGlass ? "On" : "Off"}</span>
-        </DropdownMenuItem>
+        {isDark ? (
+          <DropdownMenuItem onClick={toggleGlassMode}>
+            <Sparkles className={`mr-2 h-4 w-4 ${isGlass ? "text-yellow-500" : ""}`} />
+            <span>Glass Mode {isGlass ? "On" : "Off"}</span>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem disabled>
+            <Sparkles className="mr-2 h-4 w-4 text-primary" />
+            <span>Blue Glass · On</span>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

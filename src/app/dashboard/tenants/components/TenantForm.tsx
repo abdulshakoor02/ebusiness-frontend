@@ -518,6 +518,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     ) : (
                                         <label
                                             htmlFor="logo-upload-edit"
+                                            data-glass="upload"
                                             className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-6 h-6 text-zinc-400 mb-2" />
@@ -570,6 +571,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     ) : (
                                         <label
                                             htmlFor="stamp-upload-edit"
+                                            data-glass="upload"
                                             className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-6 h-6 text-zinc-400 mb-2" />
@@ -788,6 +790,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     ) : (
                                         <label
                                             htmlFor="logo-upload-create"
+                                            data-glass="upload"
                                             className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-6 h-6 text-zinc-400 mb-2" />
@@ -828,6 +831,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                                     ) : (
                                         <label
                                             htmlFor="stamp-upload-create"
+                                            data-glass="upload"
                                             className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-6 h-6 text-zinc-400 mb-2" />

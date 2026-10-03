@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Appearance
+
+Light mode uses the logo's blue palette with a soft blue-gray canvas, translucent white panels, rounded edges, and frosted navigation and dialogs. It is enabled automatically in light mode, including when the system theme is light. Dark mode and its existing optional Glass Mode setting are unchanged.
+
+The light-only styles live in [light-glass.css](src/app/light-glass.css), imported after the original theme. Every selector is scoped to `html:not(.dark)`. Shared UI slots cover cards, controls, tables, and portaled overlays. Bespoke surfaces use `data-glass` hooks: `panel`, `table-panel`, `inset`, `toolbar`, `upload`, and `table`. New screens should reuse these rather than hard-code opaque backgrounds or add the legacy `.card-glass` class, which also affects dark mode.
+
+Browsers without backdrop-filter receive opaque fallback panels. Reduced-transparency preferences, keyboard focus, validation colors, and document printing remain supported. Invoice and receipt PDF generation is independent of the screen theme.
+
+Run the theme scope and surface coverage checks with:
+
+```bash
+node --test tests/light-glass.test.mjs
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -14,13 +14,14 @@ export default function DashboardLayout({
         <SidebarProvider>
             <PermissionsProvider>
                 <AppSidebar />
-                <div className="flex flex-col flex-1 min-h-screen bg-background relative">
+                <div data-glass="canvas" className="flex flex-col flex-1 min-h-screen bg-background relative">
                     <Topbar />
                     <main className="flex-1 p-6 lg:p-8 animate-in fade-in zoom-in-95 duration-300 relative z-10">
                         {children}
                     </main>
                 </div>
                 <div
+                    data-glass="ambient"
                     aria-hidden="true"
                     className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
                 >
