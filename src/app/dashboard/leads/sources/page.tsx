@@ -85,8 +85,8 @@ export default function LeadSourcesPage() {
                 </Button>
             </div>
 
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <div data-glass="table-panel" className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm">
+                <div data-glass="toolbar" className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
                         <Input

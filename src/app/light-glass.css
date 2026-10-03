@@ -1,0 +1,438 @@
+/*
+ * Light is always glass, independently of the legacy Glass Mode preference.
+ * Keep every rule light-scoped: .dark and .dark.glass retain their existing UI.
+ * Shared slots cover portals too; data-glass marks bespoke CRM surfaces.
+ */
+html:not(.dark) {
+  --background: #edf4fb;
+  --foreground: #1c2c3d;
+  --card: rgb(255 255 255 / 72%);
+  --card-foreground: #1c2c3d;
+  --popover: #f8fbff;
+  --popover-foreground: #1c2c3d;
+  --primary: #0075c9;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(225 239 251 / 80%);
+  --secondary-foreground: #254663;
+  --muted: rgb(223 233 244 / 55%);
+  --muted-foreground: #5c7085;
+  --accent: rgb(0 153 255 / 10%);
+  --accent-foreground: #075a96;
+  --border: rgb(91 126 162 / 18%);
+  --input: rgb(91 126 162 / 26%);
+  --ring: #008ddd;
+  --sidebar: rgb(250 253 255 / 64%);
+  --sidebar-foreground: #1c2c3d;
+  --sidebar-primary: #0075c9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(0 153 255 / 12%);
+  --sidebar-accent-foreground: #075a96;
+  --sidebar-border: rgb(255 255 255 / 75%);
+  --sidebar-ring: #008ddd;
+  --radius: 0.875rem;
+
+  /* Opaque defaults remain legible in browsers without backdrop-filter. */
+  --light-glass-top: #fcfdff;
+  --light-glass-bottom: #f2f7fd;
+  --light-glass-floating: #f8fbff;
+  --light-glass-chrome: #f1f7fd;
+  --light-glass-inset: rgb(248 252 255 / 65%);
+  --light-glass-edge: rgb(255 255 255 / 88%);
+  --light-glass-blur: none;
+  --light-glass-shadow: 0 8px 32px rgb(35 78 119 / 5%),
+    0 1px 3px rgb(35 78 119 / 3%), inset 0 1px 0 rgb(255 255 255 / 85%);
+  --light-glass-floating-shadow: 0 24px 72px rgb(24 60 99 / 16%),
+    0 4px 16px rgb(24 60 99 / 6%), inset 0 1px 0 rgb(255 255 255 / 95%);
+  --light-glass-canvas: radial-gradient(
+      ellipse at 94% 9%,
+      rgb(0 153 255 / 19%) 0%,
+      transparent 52%
+    ),
+    radial-gradient(ellipse at 7% 94%, rgb(107 187 249 / 18%) 0%, transparent 52%),
+    radial-gradient(ellipse at 48% 48%, rgb(255 255 255 / 70%) 0%, transparent 65%),
+    linear-gradient(135deg, #e9edf2 0%, #edf4fb 48%, #e4f1fc 100%);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html:not(.dark) {
+    --light-glass-top: rgb(255 255 255 / 78%);
+    --light-glass-bottom: rgb(255 255 255 / 46%);
+    --light-glass-floating: rgb(248 252 255 / 92%);
+    --light-glass-chrome: rgb(250 253 255 / 62%);
+    --light-glass-blur: blur(20px) saturate(140%);
+  }
+}
+
+html:not(.dark) body {
+  background-color: var(--background);
+  background-image: var(--light-glass-canvas);
+  background-attachment: fixed;
+}
+
+/* Let the continuous blue canvas show through the dashboard and login shells. */
+html:not(.dark) [data-glass="canvas"] {
+  min-width: 0;
+  background: transparent;
+}
+
+html:not(.dark) [data-glass="canvas"] > main {
+  min-width: 0;
+}
+
+html:not(.dark) [data-glass="ambient"] {
+  display: none;
+}
+
+/* The desktop sidebar's inner surface otherwise hides its outer glass. */
+html:not(.dark) [data-slot="sidebar-container"] {
+  background: transparent;
+  border-color: var(--light-glass-edge);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html:not(.dark) [data-slot="sidebar-inner"],
+html:not(.dark) [data-slot="sidebar"][data-mobile="true"],
+html:not(.dark) .topbar-glass {
+  background: var(--light-glass-chrome);
+  border-color: var(--light-glass-edge);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
+  -webkit-backdrop-filter: var(--light-glass-blur);
+  backdrop-filter: var(--light-glass-blur);
+}
+
+html:not(.dark) [data-slot="sidebar"][data-mobile="true"] {
+  background: var(--light-glass-floating);
+}
+
+html:not(.dark) .topbar-glass {
+  /* Keep frosted cards below the sticky header as the main content scrolls. */
+  z-index: 20;
+}
+
+html:not(.dark) [data-slot="sidebar-menu-button"] {
+  border-radius: 0.875rem;
+}
+
+html:not(.dark) [data-slot="sidebar-menu-button"][data-active="true"] {
+  background: linear-gradient(110deg, rgb(0 153 255 / 17%), rgb(0 153 255 / 7%));
+  color: #075a96;
+  box-shadow: inset 0 0 0 1px rgb(0 153 255 / 12%);
+}
+
+/* One frosted layer per panel; nested rows use the lighter inset treatment. */
+html:not(.dark) [data-slot="card"],
+html:not(.dark) [data-glass="panel"],
+html:not(.dark) [data-glass="table-panel"],
+html:not(.dark) [data-glass="auth-panel"] {
+  background: linear-gradient(135deg, var(--light-glass-top), var(--light-glass-bottom));
+  border: 1px solid var(--light-glass-edge);
+  border-radius: 1.75rem;
+  box-shadow: var(--light-glass-shadow);
+  -webkit-backdrop-filter: var(--light-glass-blur);
+  backdrop-filter: var(--light-glass-blur);
+}
+
+html:not(.dark) [data-glass="table-panel"] {
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+html:not(.dark) [data-glass="inset"],
+html:not(.dark) [data-glass="mapping-row"][data-low-confidence="false"],
+html:not(.dark) [data-glass="chat-message"][data-role="assistant"] {
+  background: var(--light-glass-inset);
+  border-color: var(--border);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 75%);
+}
+
+html:not(.dark) [data-glass="inset"][data-assigned="true"] {
+  background: rgb(0 153 255 / 7%);
+  border-color: rgb(0 133 221 / 22%);
+}
+
+html:not(.dark) [data-glass="toolbar"] {
+  background: rgb(247 251 255 / 38%);
+  border-color: var(--border);
+}
+
+/* Keep existing success/error semantics legible on the pale overview cards. */
+html:not(.dark) [data-glass="overview"] .text-green-500 {
+  color: #137743;
+}
+
+html:not(.dark) [data-glass="overview"] .text-red-500 {
+  color: #c4323b;
+}
+
+html:not(.dark) [data-glass="upload"] {
+  background: rgb(241 248 255 / 55%);
+  border-color: rgb(0 133 221 / 30%);
+}
+
+html:not(.dark) [data-glass="upload"][data-drag-over="true"] {
+  background: rgb(0 153 255 / 12%);
+  border-color: var(--primary);
+}
+
+/* Shared tables and native CRM tables, but never the date-picker's table. */
+html:not(.dark) [data-slot="table-header"],
+html:not(.dark) [data-glass="table"] > thead {
+  background: rgb(237 246 254 / 58%);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+
+html:not(.dark) [data-slot="table-row"],
+html:not(.dark) [data-glass="table"] > tbody > tr,
+html:not(.dark) [data-glass="table-panel"] > [class~="border-b"] {
+  border-color: var(--border);
+}
+
+html:not(.dark) [data-slot="table-row"][data-state="selected"] {
+  background: rgb(0 153 255 / 10%);
+}
+
+/* FormControl's Radix Slot can replace a control's own data-slot. */
+html:not(.dark) :is(
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  input[data-slot="form-control"],
+  textarea[data-slot="form-control"],
+  button[data-slot="form-control"][role="combobox"]
+) {
+  background-color: rgb(255 255 255 / 60%);
+}
+
+html:not(.dark) :is(
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  input[data-slot="form-control"],
+  textarea[data-slot="form-control"],
+  button[data-slot="form-control"][role="combobox"]
+):not([aria-invalid="true"]) {
+  border-color: var(--input);
+}
+
+html:not(.dark) :is(
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  input[data-slot="form-control"],
+  textarea[data-slot="form-control"],
+  button[data-slot="form-control"][role="combobox"]
+):focus-visible:not([aria-invalid="true"]) {
+  background-color: rgb(255 255 255 / 88%);
+  border-color: var(--ring);
+}
+
+/* data-variant/data-size survive Button asChild composition. Keep focus rings. */
+html:not(.dark) [data-variant="outline"][data-size] {
+  background-color: rgb(255 255 255 / 54%);
+  border-color: var(--input);
+}
+
+html:not(.dark) [data-slot="tabs-list"][data-variant="default"] {
+  background: rgb(220 235 248 / 50%);
+}
+
+html:not(.dark) [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-state="active"] {
+  background: rgb(255 255 255 / 85%);
+  color: #075a96;
+  border-color: var(--light-glass-edge);
+}
+
+/* The role picker is a vertical list, not the shared fixed-height tab strip. */
+html:not(.dark) [data-glass="role-list"] {
+  width: 100%;
+  height: auto;
+  align-items: stretch;
+  background: transparent;
+}
+
+html:not(.dark) [data-glass="role-list"] [data-slot="tabs-trigger"] {
+  min-height: 2.5rem;
+  height: auto;
+  flex: none;
+}
+
+html:not(.dark) [data-glass="role-editor"] > .flex-1 {
+  min-width: 0;
+}
+
+html:not(.dark) [data-glass="tabbar"] a[aria-current="page"] {
+  color: #075a96;
+  border-color: var(--primary);
+}
+
+html:not(.dark) [data-glass="option"][data-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Portals live outside the dashboard; style them at the theme root. */
+html:not(.dark) [data-slot="dialog-content"],
+html:not(.dark) [data-slot="alert-dialog-content"],
+html:not(.dark) [data-slot="sheet-content"],
+html:not(.dark) [data-slot="popover-content"],
+html:not(.dark) [data-slot="select-content"],
+html:not(.dark) [data-slot="dropdown-menu-content"],
+html:not(.dark) [data-slot="dropdown-menu-sub-content"] {
+  background: var(--light-glass-floating);
+  border-color: var(--light-glass-edge);
+  box-shadow: var(--light-glass-floating-shadow);
+  -webkit-backdrop-filter: var(--light-glass-blur);
+  backdrop-filter: var(--light-glass-blur);
+}
+
+html:not(.dark) [data-slot="dialog-content"],
+html:not(.dark) [data-slot="alert-dialog-content"] {
+  border-radius: 1.5rem;
+}
+
+html:not(.dark) [data-slot="popover-content"],
+html:not(.dark) [data-slot="select-content"],
+html:not(.dark) [data-slot="dropdown-menu-content"],
+html:not(.dark) [data-slot="dropdown-menu-sub-content"] {
+  border-radius: 1rem;
+}
+
+html:not(.dark) [data-slot="dialog-overlay"],
+html:not(.dark) [data-slot="alert-dialog-overlay"],
+html:not(.dark) [data-slot="sheet-overlay"] {
+  background: rgb(19 43 69 / 24%);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+html:not(.dark) [data-document-preview] {
+  /* Keep invoice/receipt paper readable; PDF rendering is independent. */
+  background: rgb(253 254 255 / 97%);
+}
+
+html:not(.dark) .recharts-default-tooltip,
+html:not(.dark) [data-glass="chart-tooltip"] {
+  /* Recharts sets these three properties inline. */
+  background: var(--light-glass-floating) !important;
+  border: 1px solid var(--light-glass-edge) !important;
+  border-radius: 1rem !important;
+  color: var(--foreground);
+  box-shadow: var(--light-glass-shadow);
+  -webkit-backdrop-filter: var(--light-glass-blur);
+  backdrop-filter: var(--light-glass-blur);
+}
+
+html:not(.dark) .recharts-tooltip-label {
+  color: var(--muted-foreground) !important;
+}
+
+html:not(.dark) [data-sonner-toast][data-styled="true"] {
+  border-radius: 1rem;
+  box-shadow: var(--light-glass-floating-shadow);
+  -webkit-backdrop-filter: var(--light-glass-blur);
+  backdrop-filter: var(--light-glass-blur);
+}
+
+/* Login shares the same cool canvas without changing its dark layout. */
+html:not(.dark) [data-glass="brand"] {
+  background: rgb(255 255 255 / 20%);
+  border-color: var(--light-glass-edge);
+}
+
+html:not(.dark) [data-glass="brand-logo"] {
+  background: #172a3d;
+  padding: 0.75rem 1rem;
+}
+
+html:not(.dark) [data-glass="auth-panel"] {
+  max-width: 28rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border-radius: 2rem;
+}
+
+@media (hover: hover) {
+  html:not(.dark) [data-slot="table-body"] > [data-slot="table-row"]:hover,
+  html:not(.dark) [data-glass="table"] > tbody > tr:hover,
+  html:not(.dark) [data-glass="row"]:hover,
+  html:not(.dark) [data-glass="option"]:hover {
+    background-color: rgb(0 153 255 / 6%);
+  }
+
+  html:not(.dark) [data-variant="outline"][data-size]:hover:not(:disabled),
+  html:not(.dark) [data-glass="upload"]:hover {
+    background-color: rgb(231 245 255 / 85%);
+    border-color: rgb(0 133 221 / 32%);
+  }
+}
+
+@media (min-width: 768px) {
+  html:not(.dark) [data-glass="role-editor"] {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  html:not(.dark) [data-glass="overview"] .grid > [data-slot="card"] {
+    grid-column: 1 / -1;
+  }
+
+  html:not(.dark) [data-glass="auth-content"] {
+    padding: 1.25rem;
+  }
+
+  html:not(.dark) [data-glass="filters"],
+  html:not(.dark) [data-glass="filters"] > div {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html:not(.dark) {
+    --card: #fcfdff;
+    --light-glass-top: #fcfdff;
+    --light-glass-bottom: #f2f7fd;
+    --light-glass-floating: #f8fbff;
+    --light-glass-chrome: #f1f7fd;
+    --light-glass-inset: #f3f8fd;
+    --light-glass-blur: none;
+  }
+
+  html:not(.dark) [data-slot="dialog-overlay"],
+  html:not(.dark) [data-slot="alert-dialog-overlay"],
+  html:not(.dark) [data-slot="sheet-overlay"] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.dark) [data-slot="card"],
+  html:not(.dark) [data-glass],
+  html:not(.dark) .topbar-glass,
+  html:not(.dark) .sidebar-glass {
+    transition: none;
+  }
+
+  html:not(.dark) [data-slot="card"]:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  html:not(.dark) body {
+    background: white;
+  }
+
+  html:not(.dark) [data-slot="card"],
+  html:not(.dark) [data-slot="dialog-content"],
+  html:not(.dark) [data-glass="panel"],
+  html:not(.dark) [data-glass="table-panel"] {
+    background: white;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

@@ -67,7 +67,7 @@ export function InvoicePreviewModal({ invoice, open, onOpenChange }: InvoicePrev
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-5xl sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 border-0 bg-white dark:bg-zinc-950">
+            <DialogContent data-document-preview className="max-w-5xl sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 border-0 bg-white dark:bg-zinc-950">
                 <DialogHeader className="sr-only">
                     <DialogTitle>Invoice Preview</DialogTitle>
                 </DialogHeader>
@@ -78,7 +78,7 @@ export function InvoicePreviewModal({ invoice, open, onOpenChange }: InvoicePrev
                 ) : (
                     <div className="flex flex-col">
                         {/* Header / Brand Section */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start p-8 pb-6 border-b border-zinc-100 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-900/20 gap-6">
+                        <div data-glass="toolbar" className="flex flex-col sm:flex-row justify-between items-start p-8 pb-6 border-b border-zinc-100 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-900/20 gap-6">
                             <div className="flex flex-col gap-4">
                                 {tenant?.logo_url && (
                                     <img
@@ -154,7 +154,7 @@ export function InvoicePreviewModal({ invoice, open, onOpenChange }: InvoicePrev
 
                             {/* Minimalist Line Items */}
                             <div className="mt-8 overflow-x-auto">
-                                <table className="w-full text-sm min-w-[600px]">
+                                <table data-glass="table" className="w-full text-sm min-w-[600px]">
                                     <thead className="border-b-2 border-zinc-200 dark:border-zinc-800">
                                         <tr>
                                             <th className="text-left py-3 font-semibold text-zinc-500">Item Description</th>

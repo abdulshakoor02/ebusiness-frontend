@@ -99,7 +99,7 @@ export default function PermissionRulesPage() {
                 </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div data-glass="filters" className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
                     <Input
@@ -163,7 +163,7 @@ export default function PermissionRulesPage() {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm w-full divide-y divide-zinc-200 dark:divide-zinc-800">
+            <div data-glass="table-panel" className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm w-full divide-y divide-zinc-200 dark:divide-zinc-800">
                 {isLoading ? (
                     <div className="p-12 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
@@ -174,7 +174,7 @@ export default function PermissionRulesPage() {
                     <div className="p-12 text-center text-zinc-500">No permission rules found.</div>
                 ) : (
                     <div className="w-full overflow-auto">
-                        <table className="w-full text-sm text-left">
+                        <table data-glass="table" className="w-full text-sm text-left">
                             <thead className="text-xs text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 uppercase border-b border-zinc-200 dark:border-zinc-800">
                                 <tr>
                                     <th className="px-6 py-4 font-medium">Resource</th>

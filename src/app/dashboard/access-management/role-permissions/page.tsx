@@ -112,7 +112,7 @@ export default function RolePermissionsPage() {
     };
 
     return (
-        <Tabs defaultValue={selectedRole} onValueChange={setSelectedRole} className="w-full flex flex-col md:flex-row gap-6">
+        <Tabs data-glass="role-editor" defaultValue={selectedRole} onValueChange={setSelectedRole} className="w-full flex flex-col md:flex-row gap-6">
             {/* Left Side: Role Selection */}
             <div className="md:w-64 shrink-0">
                 <Card>
@@ -120,7 +120,7 @@ export default function RolePermissionsPage() {
                         <CardTitle className="text-sm font-medium text-zinc-500">System Roles</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 border-t">
-                        <TabsList className="flex flex-col h-auto bg-transparent border-0 p-2 space-y-1 items-stretch">
+                        <TabsList data-glass="role-list" className="flex flex-col h-auto bg-transparent border-0 p-2 space-y-1 items-stretch">
                             {roles.map((role) => (
                                 <TabsTrigger
                                     key={role}
@@ -220,6 +220,8 @@ export default function RolePermissionsPage() {
                                                                 return (
                                                                     <div
                                                                         key={key}
+                                                                        data-glass="inset"
+                                                                        data-assigned={isAssigned}
                                                                         className={`flex items-start justify-between p-4 rounded-lg border transition-colors ${isAssigned
                                                                             ? "bg-indigo-50/50 border-indigo-100 dark:bg-indigo-500/5 dark:border-indigo-500/20"
                                                                             : "bg-zinc-50/50 border-zinc-200 dark:bg-zinc-900/50 dark:border-zinc-800"

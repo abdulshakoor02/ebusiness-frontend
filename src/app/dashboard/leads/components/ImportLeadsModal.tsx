@@ -260,6 +260,8 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                 {phase === "upload" && (
                     <div className="space-y-4">
                         <div
+                            data-glass="upload"
+                            data-drag-over={dragOver}
                             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${dragOver
                                     ? "border-primary bg-primary/5"
                                     : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600"
@@ -354,11 +356,11 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                             </div>
                         </div>
 
-                        <div className="border rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900">
+                        <div data-glass="inset" className="border rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900">
                             <p className="text-xs text-zinc-500 mb-2">Sample Data Preview (first {previewData.sample_rows.length} rows)</p>
                             <div className="h-[120px] overflow-auto">
                                 <div className="overflow-x-auto">
-                                    <table className="text-xs w-full">
+                                    <table data-glass="table" className="text-xs w-full">
                                         <thead>
                                             <tr className="border-b">
                                                 {previewData.headers.map((header, i) => (
@@ -394,6 +396,8 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                         return (
                                             <div
                                                 key={`${mapping.column_index}-${index}`}
+                                                data-glass="mapping-row"
+                                                data-low-confidence={isLowConfidence}
                                                 className={`flex items-center gap-3 p-2 rounded-lg border ${isLowConfidence ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/10' : 'border-zinc-200 dark:border-zinc-700'}`}
                                             >
                                                 <div className="w-[120px] shrink-0">
@@ -448,7 +452,7 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                         {(previewData.existing_categories.length > 0 ||
                             previewData.existing_sources.length > 0 ||
                             previewData.existing_qualifications.length > 0) && (
-                                <div className="border rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900">
+                                <div data-glass="inset" className="border rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900">
                                     <p className="text-xs text-zinc-500 mb-2">Existing Reference Data</p>
                                     <div className="flex flex-wrap gap-1">
                                         {previewData.existing_categories.slice(0, 5).map((cat) => (
@@ -541,11 +545,11 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                         {result && (
                             <>
                                 <div className="grid grid-cols-3 gap-3">
-                                    <div className="rounded-lg border p-3 text-center">
+                                    <div data-glass="inset" className="rounded-lg border p-3 text-center">
                                         <p className="text-2xl font-bold">{result.total_rows}</p>
                                         <p className="text-xs text-zinc-500">Total Rows</p>
                                     </div>
-                                    <div className="rounded-lg border p-3 text-center">
+                                    <div data-glass="inset" className="rounded-lg border p-3 text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <CheckCircle2 className="h-4 w-4 text-green-600" />
                                             <p className="text-2xl font-bold text-green-600">
@@ -555,7 +559,7 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                         <p className="text-xs text-zinc-500">Inserted</p>
                                     </div>
                                     {result.skipped > 0 && (
-                                        <div className="rounded-lg border p-3 text-center">
+                                        <div data-glass="inset" className="rounded-lg border p-3 text-center">
                                             <div className="flex items-center justify-center gap-1">
                                                 <AlertCircle className="h-4 w-4 text-orange-500" />
                                                 <p className="text-2xl font-bold text-orange-500">
@@ -594,7 +598,7 @@ export function ImportLeadsModal({ open, onOpenChange }: ImportLeadsModalProps) 
                                                 {result.errors?.length || 0}
                                             </Badge>
                                         </div>
-                                        <div className="max-h-[200px] overflow-auto rounded-md border">
+                                        <div data-glass="inset" className="max-h-[200px] overflow-auto rounded-md border">
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>

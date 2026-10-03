@@ -92,6 +92,8 @@ export function Combobox({
                                 filteredOptions.map((option) => (
                                     <div
                                         key={option.value}
+                                        data-glass="option"
+                                        data-selected={option.value === value}
                                         onClick={() => handleSelect(option.value)}
                                         className={`
                                             flex items-center justify-between px-3 py-2 rounded-md cursor-pointer text-sm

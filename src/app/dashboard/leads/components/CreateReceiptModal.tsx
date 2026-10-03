@@ -121,7 +121,7 @@ export function CreateReceiptModal({ invoiceId, open, onOpenChange, onSuccess }:
                 ) : (
                     <div className="space-y-6">
                         {/* Invoice Summary */}
-                        <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
+                        <div data-glass="inset" className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-zinc-500">Total Invoice (Inc. Tax)</span>
                                 <span className="font-medium">{formatPrice(invoice.total_amount)}</span>
@@ -170,7 +170,7 @@ export function CreateReceiptModal({ invoiceId, open, onOpenChange, onSuccess }:
 
                         {/* Tax & Total Preview */}
                         {amountPaid > 0 && (
-                            <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
+                            <div data-glass="inset" className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-zinc-500">Tax ({invoice.tax_percentage}%)</span>
                                     <span>{formatPrice(taxAmount)}</span>

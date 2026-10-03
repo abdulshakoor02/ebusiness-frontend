@@ -146,7 +146,7 @@ export function CreateInvoiceModal({ leadId, open, onOpenChange }: CreateInvoice
                     {/* Products Section */}
                         <div className="space-y-3">
                             <label className="text-sm font-medium">Products</label>
-                        <div className="border border-zinc-200 dark:border-zinc-800 rounded-md">
+                        <div data-glass="inset" className="border border-zinc-200 dark:border-zinc-800 rounded-md">
                             {/* Selected Items */}
                             {selectedItems.length > 0 && (
                                 <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -225,7 +225,7 @@ export function CreateInvoiceModal({ leadId, open, onOpenChange }: CreateInvoice
                     </div>
 
                     {/* Calculations */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
+                    <div data-glass="inset" className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-zinc-500">Subtotal</span>
                                 <span>{formatPrice(subtotal)}</span>

@@ -278,6 +278,7 @@ export default function CompanyInfoPage() {
                                     ) : (
                                         <label
                                             htmlFor="logo-upload-company"
+                                            data-glass="upload"
                                             className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-8 h-8 text-zinc-400 mb-2" />
@@ -330,6 +331,7 @@ export default function CompanyInfoPage() {
                                     ) : (
                                         <label
                                             htmlFor="stamp-upload-company"
+                                            data-glass="upload"
                                             className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-md cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                                         >
                                             <Upload className="w-8 h-8 text-zinc-400 mb-2" />

@@ -33,9 +33,10 @@ export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt, onPr
         invoice.status === 'partial' ? 'outline' : 'default';
 
     return (
-        <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+        <div data-glass="panel" className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
             {/* Invoice Header */}
-            <div 
+            <div
+                data-glass="row"
                 className="p-4 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
@@ -82,8 +83,8 @@ export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt, onPr
                     {/* Invoice Items */}
                     <div>
                         <h4 className="text-sm font-medium mb-2">Items</h4>
-                        <div className="bg-zinc-50 dark:bg-zinc-900 rounded-md p-3">
-                            <table className="w-full text-sm">
+                        <div data-glass="inset" className="bg-zinc-50 dark:bg-zinc-900 rounded-md p-3">
+                            <table data-glass="table" className="w-full text-sm">
                                 <thead>
                                     <tr className="text-left text-zinc-500">
                                         <th className="pb-2">Product</th>
@@ -162,7 +163,8 @@ export function InvoiceCard({ invoice, onEdit, onAddReceipt, onEditReceipt, onPr
                             <div className="space-y-2">
                                 {receipts.map((receipt) => (
                                     <div 
-                                        key={receipt.id} 
+                                        key={receipt.id}
+                                        data-glass="inset"
                                         className="flex items-center justify-between p-2 bg-zinc-50 dark:bg-zinc-900 rounded-md text-sm"
                                     >
                                         <div>

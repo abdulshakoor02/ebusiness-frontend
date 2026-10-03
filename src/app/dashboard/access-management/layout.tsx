@@ -37,7 +37,7 @@ export default function AccessManagementLayout({
                 </div>
             </div>
 
-            <div className="border-b border-zinc-200 dark:border-zinc-800">
+            <div data-glass="tabbar" className="border-b border-zinc-200 dark:border-zinc-800">
                 <nav className="flex space-x-8" aria-label="Access Management">
                     {tabs.map((tab) => {
                         const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
@@ -45,6 +45,7 @@ export default function AccessManagementLayout({
                             <Link
                                 key={tab.name}
                                 href={tab.href}
+                                aria-current={isActive ? "page" : undefined}
                                 className={`flex items-center gap-2 py-3 px-1 border-b-2 text-sm font-medium transition-colors ${
                                     isActive
                                         ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"

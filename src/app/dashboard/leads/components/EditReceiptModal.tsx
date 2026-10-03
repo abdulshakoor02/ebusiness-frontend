@@ -144,7 +144,7 @@ export function EditReceiptModal({ receipt, open, onOpenChange, onSuccess }: Edi
 
                         {/* Tax & Total Preview */}
                         {amountPaid > 0 && (
-                            <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
+                            <div data-glass="inset" className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-zinc-500">Tax ({invoice?.tax_percentage || 0}%)</span>
                                     <span>{formatPrice(taxAmount)}</span>
