@@ -6,7 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Tenant, CreateTenantSchema, EditTenantSchema } from "@/lib/schemas";
 import { useCreateTenant, useUpdateTenant } from "@/hooks/useTenants";
 import { useCountries } from "@/hooks/useLeads";
-import { useNextcloudUpload } from "@/hooks/useNextcloudUpload";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { resolveFileUrl } from "@/lib/file-url";
 import { Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
 import * as z from "zod";
 
@@ -45,7 +46,7 @@ interface TenantFormModalProps {
 export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalProps) {
     const createTenant = useCreateTenant();
     const updateTenant = useUpdateTenant();
-    const { uploadToNextcloud, deleteFromNextcloud, isUploading } = useNextcloudUpload();
+    const { uploadFile, deleteFile, isUploading } = useFileUpload();
     const isEditing = !!tenant;
     const { data: countriesData } = useCountries({ limit: 200 });
     const countries = countriesData?.data || [];
@@ -56,12 +57,6 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
     const [stampPreview, setStampPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const stampFileInputRef = useRef<HTMLInputElement>(null);
-
-    const getProxyImageUrl = (url: string) => {
-        if (!url) return null;
-        const encodedUrl = encodeURIComponent(url);
-        return `/api/nextcloud/image?url=${encodedUrl}`;
-    };
 
     const createForm = useForm({
         resolver: zodResolver(CreateTenantSchema),
@@ -136,9 +131,9 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                 },
             });
             setSelectedLogo(null);
-            setLogoPreview(tenant.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
+            setLogoPreview(resolveFileUrl(tenant.logo_url));
             setSelectedStamp(null);
-            setStampPreview(tenant.stamp_url ? getProxyImageUrl(tenant.stamp_url) : null);
+            setStampPreview(resolveFileUrl(tenant.stamp_url));
         } else {
             createForm.reset({
                 name: "",
@@ -182,7 +177,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
 
     const clearSelectedLogo = () => {
         setSelectedLogo(null);
-        setLogoPreview(tenant?.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
+        setLogoPreview(resolveFileUrl(tenant?.logo_url));
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
@@ -202,7 +197,7 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
 
     const clearSelectedStamp = () => {
         setSelectedStamp(null);
-        setStampPreview(tenant?.stamp_url ? getProxyImageUrl(tenant.stamp_url) : null);
+        setStampPreview(resolveFileUrl(tenant?.stamp_url));
         if (stampFileInputRef.current) {
             stampFileInputRef.current.value = "";
         }
@@ -212,18 +207,19 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
         let logoUrl: string | undefined = undefined;
         let stampUrl: string | undefined = undefined;
 
+        // Upload before creating: a failed upload must not silently create the
+        // tenant without the branding the user selected. `uploadFile` surfaces
+        // the failure as a toast.
         if (selectedLogo) {
-            const uploadedUrl = await uploadToNextcloud(data.name, selectedLogo);
-            if (uploadedUrl) {
-                logoUrl = uploadedUrl;
-            }
+            const uploadedUrl = await uploadFile(data.name, selectedLogo);
+            if (!uploadedUrl) return;
+            logoUrl = uploadedUrl;
         }
 
         if (selectedStamp) {
-            const uploadedUrl = await uploadToNextcloud(data.name, selectedStamp);
-            if (uploadedUrl) {
-                stampUrl = uploadedUrl;
-            }
+            const uploadedUrl = await uploadFile(data.name, selectedStamp);
+            if (!uploadedUrl) return;
+            stampUrl = uploadedUrl;
         }
 
         const payload = {
@@ -251,25 +247,26 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
         let logoUrl: string | undefined = undefined;
         let stampUrl: string | undefined = undefined;
 
+        // Upload the replacement(s) FIRST. The previous objects are removed only
+        // after the new references are persisted, so a failed upload can no
+        // longer destroy the tenant's existing branding. `uploadFile` surfaces
+        // the failure as a toast; aborting here leaves the stored
+        // logo_url / stamp_url untouched.
         if (selectedLogo) {
-            if (tenant.logo_url) {
-                await deleteFromNextcloud(tenant.logo_url);
-            }
-            const uploadedUrl = await uploadToNextcloud(data.name, selectedLogo);
-            if (uploadedUrl) {
-                logoUrl = uploadedUrl;
-            }
+            const uploadedUrl = await uploadFile(data.name, selectedLogo);
+            if (!uploadedUrl) return;
+            logoUrl = uploadedUrl;
         }
 
         if (selectedStamp) {
-            if (tenant.stamp_url) {
-                await deleteFromNextcloud(tenant.stamp_url);
-            }
-            const uploadedUrl = await uploadToNextcloud(data.name, selectedStamp);
-            if (uploadedUrl) {
-                stampUrl = uploadedUrl;
-            }
+            const uploadedUrl = await uploadFile(data.name, selectedStamp);
+            if (!uploadedUrl) return;
+            stampUrl = uploadedUrl;
         }
+
+        // Previous objects that are safe to remove once the update succeeds.
+        const previousLogoUrl = logoUrl ? tenant.logo_url : undefined;
+        const previousStampUrl = stampUrl ? tenant.stamp_url : undefined;
 
         const payload = {
             ...data,
@@ -290,6 +287,15 @@ export function TenantFormModal({ open, onOpenChange, tenant }: TenantFormModalP
                     setSelectedStamp(null);
                     setStampPreview(null);
                     onOpenChange(false);
+
+                    // The new URL is persisted — only now is the previous
+                    // object safe to delete.
+                    if (previousLogoUrl && previousLogoUrl !== logoUrl) {
+                        void deleteFile(previousLogoUrl);
+                    }
+                    if (previousStampUrl && previousStampUrl !== stampUrl) {
+                        void deleteFile(previousStampUrl);
+                    }
                 },
             }
         );

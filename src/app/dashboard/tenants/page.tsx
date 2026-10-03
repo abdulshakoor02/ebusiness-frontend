@@ -3,6 +3,7 @@
 import { useTenants } from "@/hooks/useTenants";
 import { useCountries } from "@/hooks/useLeads";
 import { Tenant } from "@/lib/schemas";
+import { resolveFileUrl } from "@/lib/file-url";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, Search, Pencil } from "lucide-react";
@@ -87,7 +88,7 @@ export default function TenantsPage() {
                                     <tr key={tenant.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors">
                                         <td className="px-6 py-4 font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-3">
                                             <div className="h-8 w-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
-                                                {tenant.logo_url ? <img src={tenant.logo_url} className="h-full w-full object-cover" alt="Logo" /> : tenant.name.substring(0, 2)}
+                                                {tenant.logo_url ? <img src={resolveFileUrl(tenant.logo_url) || ""} className="h-full w-full object-cover" alt="Logo" /> : tenant.name.substring(0, 2)}
                                             </div>
                                             {tenant.name}
                                         </td>
