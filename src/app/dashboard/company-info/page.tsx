@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCurrentTenant, useUpdateCurrentTenant } from "@/hooks/useTenant";
-import { useNextcloudUpload } from "@/hooks/useNextcloudUpload";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { resolveFileUrl } from "@/lib/file-url";
 import { Loader2, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ type CompanyInfoFormValues = z.infer<typeof companyInfoSchema>;
 export default function CompanyInfoPage() {
     const { data: tenant, isLoading } = useCurrentTenant();
     const updateTenant = useUpdateCurrentTenant();
-    const { uploadToNextcloud, deleteFromNextcloud, isUploading } = useNextcloudUpload();
+    const { uploadFile, deleteFile, isUploading } = useFileUpload();
 
     const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -46,12 +47,6 @@ export default function CompanyInfoPage() {
     const [stampPreview, setStampPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const stampFileInputRef = useRef<HTMLInputElement>(null);
-
-    const getProxyImageUrl = (url: string) => {
-        if (!url) return null;
-        const encodedUrl = encodeURIComponent(url);
-        return `/api/nextcloud/image?url=${encodedUrl}`;
-    };
 
     const form = useForm<CompanyInfoFormValues>({
         resolver: zodResolver(companyInfoSchema),
@@ -84,9 +79,9 @@ export default function CompanyInfoPage() {
                 },
             });
             setSelectedLogo(null);
-            setLogoPreview(tenant.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
+            setLogoPreview(resolveFileUrl(tenant.logo_url));
             setSelectedStamp(null);
-            setStampPreview(tenant.stamp_url ? getProxyImageUrl(tenant.stamp_url) : null);
+            setStampPreview(resolveFileUrl(tenant.stamp_url));
         }
     }, [tenant, form]);
 
@@ -104,7 +99,7 @@ export default function CompanyInfoPage() {
 
     const clearSelectedLogo = () => {
         setSelectedLogo(null);
-        setLogoPreview(tenant?.logo_url ? getProxyImageUrl(tenant.logo_url) : null);
+        setLogoPreview(resolveFileUrl(tenant?.logo_url));
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
@@ -124,7 +119,7 @@ export default function CompanyInfoPage() {
 
     const clearSelectedStamp = () => {
         setSelectedStamp(null);
-        setStampPreview(tenant?.stamp_url ? getProxyImageUrl(tenant.stamp_url) : null);
+        setStampPreview(resolveFileUrl(tenant?.stamp_url));
         if (stampFileInputRef.current) {
             stampFileInputRef.current.value = "";
         }
@@ -136,25 +131,26 @@ export default function CompanyInfoPage() {
         let logoUrl: string | undefined = undefined;
         let stampUrl: string | undefined = undefined;
 
+        // Upload the replacement(s) FIRST. The previous objects are removed only
+        // after the new references are persisted, so a failed upload can no
+        // longer destroy the existing branding. `uploadFile` surfaces the
+        // failure as a toast; aborting here leaves the stored
+        // logo_url / stamp_url untouched.
         if (selectedLogo) {
-            if (tenant.logo_url) {
-                await deleteFromNextcloud(tenant.logo_url);
-            }
-            const uploadedUrl = await uploadToNextcloud(data.name, selectedLogo);
-            if (uploadedUrl) {
-                logoUrl = uploadedUrl;
-            }
+            const uploadedUrl = await uploadFile(data.name, selectedLogo);
+            if (!uploadedUrl) return;
+            logoUrl = uploadedUrl;
         }
 
         if (selectedStamp) {
-            if (tenant.stamp_url) {
-                await deleteFromNextcloud(tenant.stamp_url);
-            }
-            const uploadedUrl = await uploadToNextcloud(data.name, selectedStamp);
-            if (uploadedUrl) {
-                stampUrl = uploadedUrl;
-            }
+            const uploadedUrl = await uploadFile(data.name, selectedStamp);
+            if (!uploadedUrl) return;
+            stampUrl = uploadedUrl;
         }
+
+        // Previous objects that are safe to remove once the update succeeds.
+        const previousLogoUrl = logoUrl ? tenant.logo_url : undefined;
+        const previousStampUrl = stampUrl ? tenant.stamp_url : undefined;
 
         const payload = {
             ...data,
@@ -162,7 +158,18 @@ export default function CompanyInfoPage() {
             stamp_url: stampUrl,
         };
 
-        updateTenant.mutate(payload);
+        updateTenant.mutate(payload, {
+            onSuccess: () => {
+                // The new URL is persisted — only now is the previous object
+                // safe to delete.
+                if (previousLogoUrl && previousLogoUrl !== logoUrl) {
+                    void deleteFile(previousLogoUrl);
+                }
+                if (previousStampUrl && previousStampUrl !== stampUrl) {
+                    void deleteFile(previousStampUrl);
+                }
+            },
+        });
     }
 
     const isPending = updateTenant.isPending || isUploading;

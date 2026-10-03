@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Invoice, Receipt } from "@/lib/schemas";
+import { resolveFileUrl } from "@/lib/file-url";
 import { useCurrentTenant } from "@/hooks/useTenant";
 import { useLead } from "@/hooks/useLeads";
 import { formatCurrency } from "@/lib/utils";
@@ -32,12 +33,6 @@ export function ReceiptPreviewModal({ receipt, receipts, invoice, open, onOpenCh
     const [isDownloading, setIsDownloading] = useState(false);
 
     const currency = session?.user?.currency || "USD";
-
-    const getProxyImageUrl = (url: string) => {
-        if (!url) return null;
-        const encodedUrl = encodeURIComponent(url);
-        return `/api/nextcloud/image?url=${encodedUrl}`;
-    };
 
     useEffect(() => {
         if (invoice?.lead_id) {
@@ -106,7 +101,7 @@ export function ReceiptPreviewModal({ receipt, receipts, invoice, open, onOpenCh
                             <div className="flex flex-col gap-4">
                                 {tenant?.logo_url && (
                                     <img
-                                        src={getProxyImageUrl(tenant.logo_url) || ""}
+                                        src={resolveFileUrl(tenant.logo_url) || ""}
                                         alt="Company Logo"
                                         className="w-24 h-24 object-contain"
                                     />
@@ -204,7 +199,7 @@ export function ReceiptPreviewModal({ receipt, receipts, invoice, open, onOpenCh
                                 <div>
                                     {tenant?.stamp_url && (
                                         <img
-                                            src={getProxyImageUrl(tenant.stamp_url) || ""}
+                                            src={resolveFileUrl(tenant.stamp_url) || ""}
                                             alt="Company Stamp"
                                             className="w-32 h-32 object-contain opacity-90 mix-blend-multiply dark:mix-blend-screen"
                                         />

@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Invoice, Receipt } from "@/lib/schemas";
+import { resolveFileUrl } from "@/lib/file-url";
 
 interface TenantData {
     name?: string;
@@ -49,8 +50,9 @@ export function formatCurrency(amount: number, currency: string = "USD"): string
 
 async function fetchImageAsBase64(url: string): Promise<string | null> {
     try {
-        const proxyUrl = `/api/nextcloud/image?url=${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
+        const src = resolveFileUrl(url);
+        if (!src) return null;
+        const response = await fetch(src);
         if (!response.ok) return null;
         const blob = await response.blob();
         return await new Promise<string>((resolve, reject) => {

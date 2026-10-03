@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Invoice } from "@/lib/schemas";
+import { resolveFileUrl } from "@/lib/file-url";
 import { useCurrentTenant } from "@/hooks/useTenant";
 import { useLead } from "@/hooks/useLeads";
 import { formatCurrency } from "@/lib/utils";
@@ -30,12 +31,6 @@ export function InvoicePreviewModal({ invoice, open, onOpenChange }: InvoicePrev
     const [isDownloading, setIsDownloading] = useState(false);
 
     const currency = session?.user?.currency || "USD";
-
-    const getProxyImageUrl = (url: string) => {
-        if (!url) return null;
-        const encodedUrl = encodeURIComponent(url);
-        return `/api/nextcloud/image?url=${encodedUrl}`;
-    };
 
     useEffect(() => {
         if (invoice?.lead_id) {
@@ -87,7 +82,7 @@ export function InvoicePreviewModal({ invoice, open, onOpenChange }: InvoicePrev
                             <div className="flex flex-col gap-4">
                                 {tenant?.logo_url && (
                                     <img
-                                        src={getProxyImageUrl(tenant.logo_url) || ""}
+                                        src={resolveFileUrl(tenant.logo_url) || ""}
                                         alt="Company Logo"
                                         className="w-24 h-24 object-contain"
                                     />
