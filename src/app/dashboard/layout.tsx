@@ -4,6 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { PermissionsProvider } from "@/context/PermissionsContext";
+import "./dashboard.css";
 
 export default function DashboardLayout({
     children,

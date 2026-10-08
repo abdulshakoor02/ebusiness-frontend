@@ -3276,7 +3276,15 @@ Returns data for the current month of the current year.
 
 ---
 
-## 18. AI Chat
+## 18. Dashboard Summary
+
+`GET /dashboard/summary?timezone=<IANA zone>` returns the signed-in role's live platform, tenant, or personal dashboard. It requires JWT + RBAC `dashboard:view`. Identity filters are not accepted. Deploy the backend first to seed its permission and indexes.
+
+The full response contract, metric definitions, ownership rules, currency limitations, date comparisons, and deployment notes are maintained in the [backend dashboard API reference](../ebusiness-backend/api.md#18-dashboard-summary).
+
+---
+
+## 19. AI Chat
 
 ### Chat with AI Assistant
 **Endpoint:** `POST /ai/chat`
