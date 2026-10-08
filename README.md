@@ -34,6 +34,22 @@ Run the theme scope and surface coverage checks with:
 node --test tests/light-glass.test.mjs
 ```
 
+## Live dashboards
+
+The overview uses `GET /api/v1/dashboard/summary?timezone=<IANA zone>` from `ebusiness-backend`. Restart/deploy the backend first so its startup migrations install `dashboard:view` permissions and indexes, then deploy the frontend. `NEXT_PUBLIC_API_URL` must point to the backend's `/api/v1` base URL.
+
+- **Superadmin:** tenant and user growth, platform lead counts, tenant onboarding, and recent tenant summaries. No invented uptime or cross-currency revenue.
+- **Tenant admin:** tenant pipeline, net receipt collections, gross invoices and outstanding balances, team counts, appointments, follow-ups, and recent leads.
+- **User:** assigned leads, self-organized appointments, self-created follow-ups, and authored comments. No tenant-wide financial or team data.
+
+The backend chooses scope from verified JWT claims. Monthly metrics compare month-to-date with the same elapsed local calendar period last month; snapshots are labelled separately. Today follows the browser's IANA zone. Financial totals use the tenant's configured currency (no USD fallback for unknown currency). Live data refreshes every 60 seconds while visible and via **Refresh**, with loading, empty, retry, and stale-snapshot states. Query caches are keyed by user, tenant, role, and time zone. See the [backend API reference](../ebusiness-backend/api.md#18-dashboard-summary) for exact metric definitions.
+
+Dashboard-specific components and styles preserve the existing glass and dark application backgrounds. Run the contract/helper and theme checks with:
+
+```bash
+node --test tests/dashboard.test.mjs tests/light-glass.test.mjs
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
